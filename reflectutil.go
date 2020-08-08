@@ -12,7 +12,7 @@ func MapNotZeroFields(from interface{}, to interface{}) {
 	if fromKind != reflect.Struct {
 		panic(fmt.Sprintf("from must be struct, but got %s", fromKind))
 	}
-	toKind :=reflect.Indirect(reflect.ValueOf(to)).Type().Kind()
+	toKind := reflect.Indirect(reflect.ValueOf(to)).Type().Kind()
 	if toKind != reflect.Struct {
 		panic(fmt.Sprintf("to must be struct, but got %s", toKind))
 	}

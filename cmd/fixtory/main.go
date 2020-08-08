@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	version string
+	version   string
 	typeNames = flag.String("type", "", "comma-separated list of type names; must be set")
 )
 
