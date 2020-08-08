@@ -2,7 +2,9 @@ before:
   hooks:
     - go mod download
 builds:
-  - env:
+  - main: ./cmd/fixtory
+    binary: fixtory
+    env:
       - CGO_ENABLED=0
     goos:
       - darwin
