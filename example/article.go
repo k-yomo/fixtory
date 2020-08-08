@@ -4,20 +4,22 @@ import (
 	"time"
 )
 
+// ArticleStatus is the status of article
 type ArticleStatus int
 
 const (
 	ArticleStatusDraft ArticleStatus = iota + 1
-	ArticleStatusWaitReview
 	ArticleStatusOpen
 )
 
 //go:generate fixtory -type=Author,Article
+// Author represents article's author
 type Author struct {
 	ID   int
 	Name string
 }
 
+// Article represents article
 type Article struct {
 	ID                 int
 	Title              string
@@ -29,8 +31,10 @@ type Article struct {
 	LikeCount          int
 }
 
+// Article represents list of article
 type ArticleList []*Article
 
+// SelectPublished returns only published articles
 func (list ArticleList) SelectPublished() ArticleList {
 	var publishedArticles ArticleList
 	for _, a := range list {
@@ -41,6 +45,7 @@ func (list ArticleList) SelectPublished() ArticleList {
 	return publishedArticles
 }
 
+// SelectAuthoredBy returns only articles authored by given author's id
 func (list ArticleList) SelectAuthoredBy(authorID int) ArticleList {
 	var authoredArticles ArticleList
 	for _, a := range list {

@@ -31,11 +31,6 @@ var articleTraitDraft = &Article{
 	Status: ArticleStatusDraft,
 }
 
-var articleTraitWaitReview = &Article{
-	Status:      ArticleStatusWaitReview,
-	PublishedAt: time.Now().Add(-1 * time.Hour),
-}
-
 var articleTraitPublishScheduled = &Article{
 	Status:             ArticleStatusOpen,
 	PublishScheduledAt: time.Now().Add(1 * time.Hour),
@@ -55,7 +50,7 @@ func TestArticleList_SelectPublished(t *testing.T) {
 
 	// creates 3 different articles
 	waitReview, publishedScheduled, published := articleFactory.NewBuilder(articleBluePrint).
-		WithEachParams(articleTraitWaitReview, articleTraitPublishScheduled, articleTraitPublished).
+		WithEachParams(articleTraitDraft, articleTraitPublishScheduled, articleTraitPublished).
 		WithZero(TestArticleLikeCount).WithReset().
 		Build3()
 
@@ -84,7 +79,6 @@ func TestArticleList_SelectAuthoredBy(t *testing.T) {
 	articleFactory := TestNewArticleFactory(t)
 
 	author1, author2 := authorFactory.NewBuilder(authorBluePrint).Build2()
-	// creates 3 different articles authored by the same user
 	articlesAuthoredBy1 := articleFactory.NewBuilder(articleBluePrint, &Article{AuthorID: author1.ID}).BuildList(4)
 	articleAuthoredBy2 := articleFactory.NewBuilder(articleBluePrint, &Article{AuthorID: author2.ID}).Build()
 
