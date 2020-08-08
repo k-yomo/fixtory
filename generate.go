@@ -11,8 +11,6 @@ import (
 	"text/template"
 )
 
-const templateFileName = "factory.tpl"
-
 type tmplParam struct {
 	StructName string
 	FieldNames []string
@@ -47,9 +45,9 @@ func Generate(targetDir string, types []string) error {
 			for _, field := range structType.Fields.List {
 				fieldNames = append(fieldNames, field.Names[0].Name)
 			}
-			tpl := template.Must(template.New(templateFileName).Funcs(template.FuncMap{"ToLower": strings.ToLower}).ParseFiles(templateFileName))
+			tpl := template.Must(template.New("factorytpl.go").Funcs(template.FuncMap{"ToLower": strings.ToLower}).Parse(factoryTpl))
 			params := tmplParam{StructName: spec.Name.Name, FieldNames: fieldNames}
-			if err := tpl.ExecuteTemplate(body, templateFileName, params); err != nil {
+			if err := tpl.Execute(body, params); err != nil {
 				panic(err)
 			}
 		}

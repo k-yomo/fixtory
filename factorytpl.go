@@ -1,3 +1,6 @@
+package fixtory
+
+const factoryTpl = `
 {{$lowerStructName := .StructName | ToLower }}
 
 type Test{{ .StructName }}Factory interface {
@@ -115,3 +118,4 @@ func (ub *test{{ .StructName }}Builder) BuildList(n int) []*{{ .StructName }} {
 	}
 	return {{ $lowerStructName }}s
 }
+`
