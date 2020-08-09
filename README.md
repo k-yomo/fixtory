@@ -49,17 +49,17 @@ $ go generate ./...
 
 - Use factory to initialize fixtures
 ```
-var authorBluePrint = func(i int, last *Author) *Author {
+var authorBluePrint = func(i int, last Author) Author {
 	num := i + 1
-	return &Author{
+	return Author{
 		ID:   num,
 		Name: fmt.Sprintf("Author %d", num),
 	}
 }
 
-var articleBluePrint = func(i int, last *Article) *Article {
+var articleBluePrint = func(i int, last Article) Article {
 	num := i + 1
-	return &Article{
+	return Article{
 		ID:                 num,
 		Title:              fmt.Sprintf("Article %d", i+1),
 		AuthorID:           num,
@@ -74,8 +74,8 @@ func TestArticleList_SelectAuthoredBy(t *testing.T) {
 	articleFactory := TestNewArticleFactory(t)
 
 	author1, author2 := authorFactory.NewBuilder(authorBluePrint).Build2()
-	articlesAuthoredBy1 := articleFactory.NewBuilder(articleBluePrint, &Article{AuthorID: author1.ID}).BuildList(4)
-	articleAuthoredBy2 := articleFactory.NewBuilder(articleBluePrint, &Article{AuthorID: author2.ID}).Build()
+	articlesAuthoredBy1 := articleFactory.NewBuilder(articleBluePrint, Article{AuthorID: author1.ID}).BuildList(4)
+	articleAuthoredBy2 := articleFactory.NewBuilder(articleBluePrint, Article{AuthorID: author2.ID}).Build()
 
 	type args struct {
 		authorID int
@@ -118,7 +118,7 @@ Blueprint is the base of fixture(like FROM in Dockerfile) and called first.
 You need to implement blueprint function to meet generated blueprint type (like below)
 It should return instance with generic field values.
 ```
-type TestArticleBluePrintFunc func(i int, last *Article) *Article
+type TestArticleBluePrintFunc func(i int, last Article) Article
 ```
 
 ### 2. Traits
@@ -127,7 +127,7 @@ Traits are applied in the order of arguments to all fixtures.
 ※ Only non-zero value will be set.
 ```
 //  Repeatedly used trait would be better to define as global variable.
-var articleTraitPublished = &Article{
+var articleTraitPublished = Article{
 	Status:             ArticleStatusOpen,
 	PublishScheduledAt: time.Now().Add(-1 * time.Hour),
 	PublishedAt:        time.Now().Add(-1 * time.Hour),
@@ -138,7 +138,7 @@ var articleTraitPublished = &Article{
 articles:= articleFactory.NewBuilder(
                nil, 
                articleTraitPublished,
-               &Article{AuthorID: 5, PublishedAt: time.Now().Add(-1 * time.Minute)},
+               Article{AuthorID: 5, PublishedAt: time.Now().Add(-1 * time.Minute)},
            ).BuildList(5)
 ```
 
@@ -147,8 +147,8 @@ When you want to overwrite a specific fixture, use each params.
 Each Params are applied to the same index fixture.
 ※ Only non-zero value will be set.
 ```
-articles := articleFactory.NewBuilder(nil, &Article{Title: "test article"})
-                .EachParams(&Article{AuthorID: 1}, &Article{AuthorID: 2}, &Article{AuthorID: 2})
+articles := articleFactory.NewBuilder(nil, Article{Title: "test article"})
+                .EachParams(Article{AuthorID: 1}, Article{AuthorID: 2}, Article{AuthorID: 2})
                 .BuildList(3)
 ```
 
@@ -158,7 +158,7 @@ you can overwrite fields with zero value like below, and it will be applied at t
 ```
 articleFactory := TestNewArticleFactory(t)
 // AuthorID will be overwritten with zero value.
-articles := articleFactory.NewBuilder(articleBluePrint, &Article{AuthorID: author1.ID}).
+articles := articleFactory.NewBuilder(articleBluePrint, Article{AuthorID: author1.ID}).
                 WithZero(TestArticleAuthorID).
                 BuildList(4)
 ```

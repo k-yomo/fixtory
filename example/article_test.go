@@ -7,17 +7,17 @@ import (
 	"time"
 )
 
-var authorBluePrint = func(i int, last *Author) *Author {
+var authorBluePrint = func(i int, last Author) Author {
 	num := i + 1
-	return &Author{
+	return Author{
 		ID:   num,
 		Name: fmt.Sprintf("Author %d", num),
 	}
 }
 
-var articleBluePrint = func(i int, last *Article) *Article {
+var articleBluePrint = func(i int, last Article) Article {
 	num := i + 1
-	return &Article{
+	return Article{
 		ID:                 num,
 		Title:              fmt.Sprintf("Article %d", i+1),
 		AuthorID:           num,
@@ -27,16 +27,16 @@ var articleBluePrint = func(i int, last *Article) *Article {
 	}
 }
 
-var articleTraitDraft = &Article{
+var articleTraitDraft = Article{
 	Status: ArticleStatusDraft,
 }
 
-var articleTraitPublishScheduled = &Article{
+var articleTraitPublishScheduled = Article{
 	Status:             ArticleStatusOpen,
 	PublishScheduledAt: time.Now().Add(1 * time.Hour),
 }
 
-var articleTraitPublished = &Article{
+var articleTraitPublished = Article{
 	Status:             ArticleStatusOpen,
 	PublishScheduledAt: time.Now().Add(-1 * time.Hour),
 	PublishedAt:        time.Now().Add(-1 * time.Hour),
@@ -79,8 +79,8 @@ func TestArticleList_SelectAuthoredBy(t *testing.T) {
 	articleFactory := TestNewArticleFactory(t)
 
 	author1, author2 := authorFactory.NewBuilder(authorBluePrint).Build2()
-	articlesAuthoredBy1 := articleFactory.NewBuilder(articleBluePrint, &Article{AuthorID: author1.ID}).BuildList(4)
-	articleAuthoredBy2 := articleFactory.NewBuilder(articleBluePrint, &Article{AuthorID: author2.ID}).Build()
+	articlesAuthoredBy1 := articleFactory.NewBuilder(articleBluePrint, Article{AuthorID: author1.ID}).BuildList(4)
+	articleAuthoredBy2 := articleFactory.NewBuilder(articleBluePrint, Article{AuthorID: author2.ID}).Build()
 
 	type args struct {
 		authorID int

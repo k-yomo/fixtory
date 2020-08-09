@@ -8,7 +8,7 @@ import (
 )
 
 type TestAuthorFactory interface {
-	NewBuilder(bluePrint TestAuthorBluePrintFunc, traits ...*Author) TestAuthorBuilder
+	NewBuilder(bluePrint TestAuthorBluePrintFunc, traits ...Author) TestAuthorBuilder
 	OnBuild(onBuild func(t *testing.T, author *Author))
 	Reset()
 }
@@ -20,10 +20,10 @@ type TestAuthorBuilder interface {
 	BuildList(n int) []*Author
 	WithZero(authorFields ...TestAuthorField) TestAuthorBuilder
 	WithReset() TestAuthorBuilder
-	WithEachParams(authorTraits ...*Author) TestAuthorBuilder
+	WithEachParams(authorTraits ...Author) TestAuthorBuilder
 }
 
-type TestAuthorBluePrintFunc func(i int, last *Author) *Author
+type TestAuthorBluePrintFunc func(i int, last Author) Author
 
 type TestAuthorField string
 
@@ -48,12 +48,12 @@ func TestNewAuthorFactory(t *testing.T) TestAuthorFactory {
 	return &testAuthorFactory{t: t, factory: fixtory.NewFactory(t, &Author{})}
 }
 
-func (uf *testAuthorFactory) NewBuilder(bluePrint TestAuthorBluePrintFunc, authorTraits ...*Author) TestAuthorBuilder {
+func (uf *testAuthorFactory) NewBuilder(bluePrint TestAuthorBluePrintFunc, authorTraits ...Author) TestAuthorBuilder {
 	uf.t.Helper()
 
 	var bp fixtory.BluePrintFunc
 	if bluePrint != nil {
-		bp = func(i int, last interface{}) interface{} { return bluePrint(i, last.(*Author)) }
+		bp = func(i int, last interface{}) interface{} { return bluePrint(i, *last.(*Author)) }
 	}
 	builder := uf.factory.NewBuilder(bp, fixtory.ConvertToInterfaceArray(authorTraits)...)
 
@@ -90,7 +90,7 @@ func (ub *testAuthorBuilder) WithReset() TestAuthorBuilder {
 	return ub
 }
 
-func (ub *testAuthorBuilder) WithEachParams(authorTraits ...*Author) TestAuthorBuilder {
+func (ub *testAuthorBuilder) WithEachParams(authorTraits ...Author) TestAuthorBuilder {
 	ub.t.Helper()
 
 	ub.builder = ub.builder.WithEachParams(fixtory.ConvertToInterfaceArray(authorTraits)...)
@@ -126,7 +126,7 @@ func (ub *testAuthorBuilder) BuildList(n int) []*Author {
 }
 
 type TestArticleFactory interface {
-	NewBuilder(bluePrint TestArticleBluePrintFunc, traits ...*Article) TestArticleBuilder
+	NewBuilder(bluePrint TestArticleBluePrintFunc, traits ...Article) TestArticleBuilder
 	OnBuild(onBuild func(t *testing.T, article *Article))
 	Reset()
 }
@@ -138,10 +138,10 @@ type TestArticleBuilder interface {
 	BuildList(n int) []*Article
 	WithZero(articleFields ...TestArticleField) TestArticleBuilder
 	WithReset() TestArticleBuilder
-	WithEachParams(articleTraits ...*Article) TestArticleBuilder
+	WithEachParams(articleTraits ...Article) TestArticleBuilder
 }
 
-type TestArticleBluePrintFunc func(i int, last *Article) *Article
+type TestArticleBluePrintFunc func(i int, last Article) Article
 
 type TestArticleField string
 
@@ -172,12 +172,12 @@ func TestNewArticleFactory(t *testing.T) TestArticleFactory {
 	return &testArticleFactory{t: t, factory: fixtory.NewFactory(t, &Article{})}
 }
 
-func (uf *testArticleFactory) NewBuilder(bluePrint TestArticleBluePrintFunc, articleTraits ...*Article) TestArticleBuilder {
+func (uf *testArticleFactory) NewBuilder(bluePrint TestArticleBluePrintFunc, articleTraits ...Article) TestArticleBuilder {
 	uf.t.Helper()
 
 	var bp fixtory.BluePrintFunc
 	if bluePrint != nil {
-		bp = func(i int, last interface{}) interface{} { return bluePrint(i, last.(*Article)) }
+		bp = func(i int, last interface{}) interface{} { return bluePrint(i, *last.(*Article)) }
 	}
 	builder := uf.factory.NewBuilder(bp, fixtory.ConvertToInterfaceArray(articleTraits)...)
 
@@ -214,7 +214,7 @@ func (ub *testArticleBuilder) WithReset() TestArticleBuilder {
 	return ub
 }
 
-func (ub *testArticleBuilder) WithEachParams(articleTraits ...*Article) TestArticleBuilder {
+func (ub *testArticleBuilder) WithEachParams(articleTraits ...Article) TestArticleBuilder {
 	ub.t.Helper()
 
 	ub.builder = ub.builder.WithEachParams(fixtory.ConvertToInterfaceArray(articleTraits)...)

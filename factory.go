@@ -69,7 +69,7 @@ func (b *Builder) build() interface{} {
 	product := reflect.New(b.productType.Elem()).Interface()
 
 	if b.bluePrint != nil {
-		product = b.bluePrint(b.index, b.last)
+		MapNotZeroFields(b.bluePrint(b.index, b.last), product)
 	}
 	for _, trait := range b.traits {
 		MapNotZeroFields(trait, product)
