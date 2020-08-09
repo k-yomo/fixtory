@@ -66,7 +66,7 @@ func (b *Builder) BuildList(n int) []interface{} {
 }
 
 func (b *Builder) build() interface{} {
-	product := reflect.New(b.productType).Interface()
+	product := reflect.New(b.productType.Elem()).Interface()
 
 	if b.bluePrint != nil {
 		product = b.bluePrint(b.index, b.last)
