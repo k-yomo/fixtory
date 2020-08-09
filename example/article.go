@@ -12,7 +12,7 @@ const (
 	ArticleStatusOpen
 )
 
-//go:generate fixtory -type=Author,Article
+//go:generate fixtory -type=Author,Article -output=article.fixtory.go
 // Author represents article's author
 type Author struct {
 	ID   int

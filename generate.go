@@ -6,7 +6,6 @@ import (
 	"go/ast"
 	"go/format"
 	"os"
-	"path/filepath"
 	"strings"
 	"text/template"
 )
@@ -16,7 +15,7 @@ type tmplParam struct {
 	FieldNames []string
 }
 
-func Generate(targetDir string, types []string) error {
+func Generate(targetDir string, outputPath string, types []string) error {
 	targetTypeMap := map[string]bool{}
 	for _, t := range types {
 		targetTypeMap[t] = true
@@ -81,8 +80,7 @@ func Generate(targetDir string, types []string) error {
 			panic(err)
 		}
 
-		dstFilePath := filepath.Join(filepath.FromSlash(targetDir), "fixtory_gen.go")
-		writer, err := os.Create(dstFilePath)
+		writer, err := os.Create(outputPath)
 		if err != nil {
 			panic(err)
 		}
