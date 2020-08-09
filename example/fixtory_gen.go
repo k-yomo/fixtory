@@ -51,7 +51,10 @@ func TestNewAuthorFactory(t *testing.T) TestAuthorFactory {
 func (uf *testAuthorFactory) NewBuilder(bluePrint TestAuthorBluePrintFunc, authorTraits ...*Author) TestAuthorBuilder {
 	uf.t.Helper()
 
-	bp := func(i int, last interface{}) interface{} { return bluePrint(i, last.(*Author)) }
+	var bp fixtory.BluePrintFunc
+	if bluePrint != nil {
+		bp = func(i int, last interface{}) interface{} { return bluePrint(i, last.(*Author)) }
+	}
 	builder := uf.factory.NewBuilder(bp, fixtory.ConvertToInterfaceArray(authorTraits)...)
 
 	return &testAuthorBuilder{t: uf.t, builder: builder}
@@ -172,7 +175,10 @@ func TestNewArticleFactory(t *testing.T) TestArticleFactory {
 func (uf *testArticleFactory) NewBuilder(bluePrint TestArticleBluePrintFunc, articleTraits ...*Article) TestArticleBuilder {
 	uf.t.Helper()
 
-	bp := func(i int, last interface{}) interface{} { return bluePrint(i, last.(*Article)) }
+	var bp fixtory.BluePrintFunc
+	if bluePrint != nil {
+		bp = func(i int, last interface{}) interface{} { return bluePrint(i, last.(*Article)) }
+	}
 	builder := uf.factory.NewBuilder(bp, fixtory.ConvertToInterfaceArray(articleTraits)...)
 
 	return &testArticleBuilder{t: uf.t, builder: builder}

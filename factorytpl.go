@@ -48,7 +48,10 @@ func TestNew{{ .StructName }}Factory(t *testing.T) Test{{ .StructName }}Factory 
 func (uf *test{{ .StructName }}Factory) NewBuilder(bluePrint Test{{ .StructName }}BluePrintFunc, {{ $lowerStructName }}Traits ...*{{ .StructName }}) Test{{ .StructName }}Builder {
 	uf.t.Helper()
 
-	bp := func(i int, last interface{}) interface{} { return bluePrint(i, last.(*{{ .StructName }})) }
+	var bp fixtory.BluePrintFunc
+	if bluePrint != nil {
+		bp = func(i int, last interface{}) interface{} { return bluePrint(i, last.(*{{ .StructName }})) }
+	}
 	builder := uf.factory.NewBuilder(bp, fixtory.ConvertToInterfaceArray({{ $lowerStructName }}Traits)...)
 
 	return &test{{ .StructName }}Builder{t: uf.t, builder: builder}
