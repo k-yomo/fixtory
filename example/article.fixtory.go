@@ -20,7 +20,7 @@ type TestAuthorBuilder interface {
 	BuildList(n int) []*Author
 	WithZero(authorFields ...TestAuthorField) TestAuthorBuilder
 	WithReset() TestAuthorBuilder
-	WithEachParams(authorTraits ...Author) TestAuthorBuilder
+	WithEachParam(authorParams ...Author) TestAuthorBuilder
 }
 
 type TestAuthorBluePrintFunc func(i int, last Author) Author
@@ -90,10 +90,10 @@ func (ub *testAuthorBuilder) WithReset() TestAuthorBuilder {
 	return ub
 }
 
-func (ub *testAuthorBuilder) WithEachParams(authorTraits ...Author) TestAuthorBuilder {
+func (ub *testAuthorBuilder) WithEachParam(authorParams ...Author) TestAuthorBuilder {
 	ub.t.Helper()
 
-	ub.builder = ub.builder.WithEachParams(fixtory.ConvertToInterfaceArray(authorTraits)...)
+	ub.builder = ub.builder.WithEachParam(fixtory.ConvertToInterfaceArray(authorParams)...)
 	return ub
 }
 
@@ -138,7 +138,7 @@ type TestArticleBuilder interface {
 	BuildList(n int) []*Article
 	WithZero(articleFields ...TestArticleField) TestArticleBuilder
 	WithReset() TestArticleBuilder
-	WithEachParams(articleTraits ...Article) TestArticleBuilder
+	WithEachParam(articleParams ...Article) TestArticleBuilder
 }
 
 type TestArticleBluePrintFunc func(i int, last Article) Article
@@ -214,10 +214,10 @@ func (ub *testArticleBuilder) WithReset() TestArticleBuilder {
 	return ub
 }
 
-func (ub *testArticleBuilder) WithEachParams(articleTraits ...Article) TestArticleBuilder {
+func (ub *testArticleBuilder) WithEachParam(articleParams ...Article) TestArticleBuilder {
 	ub.t.Helper()
 
-	ub.builder = ub.builder.WithEachParams(fixtory.ConvertToInterfaceArray(articleTraits)...)
+	ub.builder = ub.builder.WithEachParam(fixtory.ConvertToInterfaceArray(articleParams)...)
 	return ub
 }
 

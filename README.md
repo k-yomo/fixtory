@@ -143,13 +143,13 @@ articles:= articleFactory.NewBuilder(
            ).BuildList(5)
 ```
 
-### 3. Each Params
-When you want to overwrite a specific fixture, use each params.
-Each Params are applied to the same index fixture.
+### 3. Each Param
+When you want to overwrite a specific fixture in the list, use WithEachParam.
+Each Param overwrites the same index struct as parameter.
 ※ Only non-zero value will be set.
 ```
 articles := articleFactory.NewBuilder(nil, Article{Title: "test article"})
-                .EachParams(Article{AuthorID: 1}, Article{AuthorID: 2}, Article{AuthorID: 2})
+                .WithEachParam(Article{AuthorID: 1}, Article{AuthorID: 2}, Article{AuthorID: 2})
                 .BuildList(3)
 ```
 

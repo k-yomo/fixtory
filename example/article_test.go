@@ -50,7 +50,7 @@ func TestArticleList_SelectPublished(t *testing.T) {
 
 	// creates 3 different articles
 	waitReview, publishedScheduled, published := articleFactory.NewBuilder(articleBluePrint).
-		WithEachParams(articleTraitDraft, articleTraitPublishScheduled, articleTraitPublished).
+		WithEachParam(articleTraitDraft, articleTraitPublishScheduled, articleTraitPublished).
 		WithZero(TestArticleLikeCount).WithReset().
 		Build3()
 

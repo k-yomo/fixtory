@@ -29,7 +29,7 @@ type Test{{ .StructName }}Builder interface {
 	BuildList(n int) []*{{ .StructName }}
 	WithZero({{ $lowerStructName }}Fields ...Test{{ .StructName }}Field) Test{{ .StructName }}Builder
 	WithReset() Test{{ .StructName }}Builder
-	WithEachParams({{ $lowerStructName }}Traits ...{{ .StructName }}) Test{{ .StructName }}Builder
+	WithEachParam({{ $lowerStructName }}Params ...{{ .StructName }}) Test{{ .StructName }}Builder
 }
 
 type Test{{ .StructName }}BluePrintFunc func(i int, last {{ .StructName }}) {{ .StructName }}
@@ -100,10 +100,10 @@ func (ub *test{{ .StructName }}Builder) WithReset() Test{{ .StructName }}Builder
 	return ub
 }
 
-func (ub *test{{ .StructName }}Builder) WithEachParams({{ $lowerStructName }}Traits ...{{ .StructName }}) Test{{ .StructName }}Builder {
+func (ub *test{{ .StructName }}Builder) WithEachParam({{ $lowerStructName }}Params ...{{ .StructName }}) Test{{ .StructName }}Builder {
 	ub.t.Helper()
 
-	ub.builder = ub.builder.WithEachParams(fixtory.ConvertToInterfaceArray({{ $lowerStructName }}Traits)...)
+	ub.builder = ub.builder.WithEachParam(fixtory.ConvertToInterfaceArray({{ $lowerStructName }}Params)...)
 	return ub
 }
 

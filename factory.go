@@ -24,7 +24,7 @@ type Builder struct {
 	index           int
 	bluePrint       func(i int, last interface{}) interface{}
 	traits          []interface{}
-	eachParams      []interface{}
+	eachParam      []interface{}
 	zeroFields      []string
 	resetAfterBuild bool
 }
@@ -51,8 +51,8 @@ func (b *Builder) WithReset() *Builder {
 	return b
 }
 
-func (b *Builder) WithEachParams(traits ...interface{}) *Builder {
-	b.eachParams = traits
+func (b *Builder) WithEachParam(params ...interface{}) *Builder {
+	b.eachParam = params
 	return b
 }
 
@@ -85,8 +85,8 @@ func (b *Builder) build() interface{} {
 	for _, trait := range b.traits {
 		MapNotZeroFields(trait, product)
 	}
-	if len(b.eachParams) > b.index {
-		MapNotZeroFields(b.eachParams[b.index], product)
+	if len(b.eachParam) > b.index {
+		MapNotZeroFields(b.eachParam[b.index], product)
 	}
 	for _, f := range b.zeroFields {
 		uf := reflect.ValueOf(product).Elem().FieldByName(f)

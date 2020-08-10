@@ -190,7 +190,7 @@ func TestBuilder_BuildList(t *testing.T) {
 					},
 				}
 			}, testStruct{}).
-				WithEachParams(testStruct{Float: 0.1}, testStruct{Float: 0.2}, testStruct{Float: 0.3}).
+				WithEachParam(testStruct{Float: 0.1}, testStruct{Float: 0.2}, testStruct{Float: 0.3}).
 				WithZero("Map").
 				WithReset(),
 			args: args{n: 3},
@@ -205,7 +205,7 @@ func TestBuilder_BuildList(t *testing.T) {
 			builder: fac.NewBuilder(func(i int, last interface{}) interface{} {
 				return testStruct{Int: i + 1}
 			}).
-				WithEachParams(testStruct{Float: 0.1}, testStruct{}, testStruct{Float: 0.3}).
+				WithEachParam(testStruct{Float: 0.1}, testStruct{}, testStruct{Float: 0.3}).
 				WithZero("Map").
 				WithReset(),
 			args: args{n: 3},
