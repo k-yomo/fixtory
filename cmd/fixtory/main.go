@@ -17,6 +17,7 @@ var (
 	version   string
 	typeNames = flag.String("type", "", "comma-separated list of type names; must be set")
 	output    = flag.String("output", "", "output file name; default srcdir/fixtory_gen.go")
+	pkgName   = flag.String("package", "", "package name; default same package as the type")
 )
 
 // Usage is a replacement usage function for the flags package.
@@ -57,7 +58,7 @@ func main() {
 		}
 		return writer, func() error { return writer.Close() }, nil
 	}
-	if err := fixtory.Generate(targetDir, types, newWriter); err != nil {
+	if err := fixtory.Generate(targetDir, types, pkgName, newWriter); err != nil {
 		color.Red("%+v", err)
 		os.Exit(1)
 	}
