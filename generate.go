@@ -46,7 +46,13 @@ func Generate(targetDir string, types []string, pkgName string, newWriter func()
 				fieldNames = append(fieldNames, field.Names[0].Name)
 			}
 			tpl := template.Must(template.New("factory").Funcs(template.FuncMap{"ToLower": strings.ToLower}).Parse(factoryTpl))
-			params := tmplParam{StructName: spec.Name.Name, FieldNames: fieldNames}
+			params := struct {
+				StructName string
+				FieldNames []string
+			}{
+				StructName: spec.Name.Name,
+				FieldNames: fieldNames,
+			}
 			if err := tpl.Execute(body, params); err != nil {
 				return xerrors.Errorf("execute factory template: %w", err)
 			}
@@ -55,16 +61,26 @@ func Generate(targetDir string, types []string, pkgName string, newWriter func()
 			continue
 		}
 
+		var importPackages []string
 		if pkgName == "" {
 			pkgName = walker.Pkg.Name
+		} else {
+			importPackages = append(importPackages, walker.PkgPath)
 		}
 
 		out := new(bytes.Buffer)
-		err = template.Must(template.New("fixtoryFile").Parse(fixtoryFileTpl)).Execute(out, map[string]string{
-			"GeneratorName": "fixtory",
-			"PackageName":   pkgName,
-			"Body":          body.String(),
-		})
+		params := struct {
+			GeneratorName  string
+			PackageName    string
+			ImportPackages []string
+			Body           string
+		}{
+			GeneratorName:  "fixtory",
+			PackageName:    pkgName,
+			ImportPackages: importPackages,
+			Body:           body.String(),
+		}
+		err = template.Must(template.New("fixtoryFile").Parse(fixtoryFileTpl)).Execute(out, params)
 		if err != nil {
 			return xerrors.Errorf("execute fixtoryFile template: %w", err)
 		}

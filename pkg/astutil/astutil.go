@@ -1,12 +1,15 @@
 package astutil
 
 import (
+	"errors"
 	"go/ast"
+	"go/build"
 	"go/parser"
 	"go/token"
 	"golang.org/x/xerrors"
 	"path/filepath"
 	"sort"
+	"strings"
 )
 
 // AstPkgWalker represents ast package walker
@@ -68,17 +71,47 @@ func DirToAstWalker(targetDir string) (map[string]AstPkgWalker, error) {
 
 	m := make(map[string]AstPkgWalker, len(pkgMap))
 	for k, v := range pkgMap {
-		m[k] = ParseAstPkg(v)
+		m[k], err = ParseAstPkg(fileSet, v)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return m, nil
 }
 
 // ParseAstPkg parses package ast
-func ParseAstPkg(pkg *ast.Package) AstPkgWalker {
+func ParseAstPkg(fset *token.FileSet, pkg *ast.Package) (AstPkgWalker, error) {
+	var aFilePath string
+	for _, file := range pkg.Files {
+		aFilePath = fset.File(file.Package).Name()
+	}
+	pkgPath, err := LocalPathToPackagePath(filepath.Dir(aFilePath))
+	if err != nil {
+		return AstPkgWalker{}, err
+	}
 	return AstPkgWalker{
 		Pkg:     pkg,
 		Decls:   AllDeclsFromAstPkg(pkg),
+		PkgPath: pkgPath,
+	}, nil
+}
+
+func LocalPathToPackagePath(s string) (string, error) {
+	s, err := filepath.Abs(s)
+	if err != nil {
+		return "", err
 	}
+
+	s = filepath.ToSlash(s)
+
+	for _, srcDir := range build.Default.SrcDirs() {
+		srcDir = filepath.ToSlash(srcDir)
+		prefix := srcDir + "/"
+		if strings.HasPrefix(s, prefix) {
+			return strings.TrimPrefix(s, prefix), nil
+		}
+	}
+	return "", errors.New("failed to resolve package path")
 }
 
 func AllDeclsFromAstPkg(pkg *ast.Package) []ast.Decl {
