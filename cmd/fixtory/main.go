@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/k-yomo/fixtory"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -48,7 +49,14 @@ func main() {
 		outputPath = filepath.Join(targetDir, "fixtory_gen.go")
 	}
 
-	if err := fixtory.Generate(targetDir, outputPath, types); err != nil {
+	newWriter := func() (io.Writer, func() error, error) {
+		writer, err := os.Create(outputPath)
+		if err != nil {
+			return nil, nil, err
+		}
+		return writer, func() error { return writer.Close() }, nil
+	}
+	if err := fixtory.Generate(targetDir, types, newWriter); err != nil {
 		color.Red("%v", err)
 		os.Exit(1)
 	}

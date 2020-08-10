@@ -5,7 +5,7 @@ import (
 	"github.com/k-yomo/fixtory/pkg/astutil"
 	"go/ast"
 	"go/format"
-	"os"
+	"io"
 	"strings"
 	"text/template"
 )
@@ -15,7 +15,7 @@ type tmplParam struct {
 	FieldNames []string
 }
 
-func Generate(targetDir string, outputPath string, types []string) error {
+func Generate(targetDir string, types []string, newWriter func() (writer io.Writer, close func() error, err error)) error {
 	targetTypeMap := map[string]bool{}
 	for _, t := range types {
 		targetTypeMap[t] = true
@@ -80,11 +80,8 @@ func Generate(targetDir string, outputPath string, types []string) error {
 			panic(err)
 		}
 
-		writer, err := os.Create(outputPath)
-		if err != nil {
-			panic(err)
-		}
-		defer writer.Close()
+		writer, closeWriter, err := newWriter()
+		defer closeWriter()
 
 		if _, err := writer.Write(str); err != nil {
 			return err
