@@ -7,16 +7,16 @@ import (
 	"testing"
 )
 
-type TestAuthorFactory interface {
-	NewBuilder(bluePrint TestAuthorBluePrintFunc, traits ...Author) TestAuthorBuilder
+type AuthorFactory interface {
+	NewBuilder(bluePrint AuthorBluePrintFunc, traits ...Author) AuthorBuilder
 	OnBuild(onBuild func(t *testing.T, author *Author))
 	Reset()
 }
 
-type TestAuthorBuilder interface {
-	EachParam(authorParams ...Author) TestAuthorBuilder
-	Zero(authorFields ...TestAuthorField) TestAuthorBuilder
-	ResetAfter() TestAuthorBuilder
+type AuthorBuilder interface {
+	EachParam(authorParams ...Author) AuthorBuilder
+	Zero(authorFields ...AuthorField) AuthorBuilder
+	ResetAfter() AuthorBuilder
 
 	Build() *Author
 	Build2() (*Author, *Author)
@@ -24,32 +24,32 @@ type TestAuthorBuilder interface {
 	BuildList(n int) []*Author
 }
 
-type TestAuthorBluePrintFunc func(i int, last Author) Author
+type AuthorBluePrintFunc func(i int, last Author) Author
 
-type TestAuthorField string
+type AuthorField string
 
 const (
-	TestAuthorID   TestAuthorField = "ID"
-	TestAuthorName TestAuthorField = "Name"
+	AuthorIDField   AuthorField = "ID"
+	AuthorNameField AuthorField = "Name"
 )
 
-type testAuthorFactory struct {
+type authorFactory struct {
 	t       *testing.T
 	factory *fixtory.Factory
 }
 
-type testAuthorBuilder struct {
+type authorBuilder struct {
 	t       *testing.T
 	builder *fixtory.Builder
 }
 
-func TestNewAuthorFactory(t *testing.T) TestAuthorFactory {
+func NewAuthorFactory(t *testing.T) AuthorFactory {
 	t.Helper()
 
-	return &testAuthorFactory{t: t, factory: fixtory.NewFactory(t, Author{})}
+	return &authorFactory{t: t, factory: fixtory.NewFactory(t, Author{})}
 }
 
-func (uf *testAuthorFactory) NewBuilder(bluePrint TestAuthorBluePrintFunc, authorTraits ...Author) TestAuthorBuilder {
+func (uf *authorFactory) NewBuilder(bluePrint AuthorBluePrintFunc, authorTraits ...Author) AuthorBuilder {
 	uf.t.Helper()
 
 	var bp fixtory.BluePrintFunc
@@ -58,22 +58,22 @@ func (uf *testAuthorFactory) NewBuilder(bluePrint TestAuthorBluePrintFunc, autho
 	}
 	builder := uf.factory.NewBuilder(bp, fixtory.ConvertToInterfaceArray(authorTraits)...)
 
-	return &testAuthorBuilder{t: uf.t, builder: builder}
+	return &authorBuilder{t: uf.t, builder: builder}
 }
 
-func (uf *testAuthorFactory) OnBuild(onBuild func(t *testing.T, author *Author)) {
+func (uf *authorFactory) OnBuild(onBuild func(t *testing.T, author *Author)) {
 	uf.t.Helper()
 
 	uf.factory.OnBuild = func(t *testing.T, v interface{}) { onBuild(t, v.(*Author)) }
 }
 
-func (uf *testAuthorFactory) Reset() {
+func (uf *authorFactory) Reset() {
 	uf.t.Helper()
 
 	uf.factory.Reset()
 }
 
-func (ub *testAuthorBuilder) Zero(authorFields ...TestAuthorField) TestAuthorBuilder {
+func (ub *authorBuilder) Zero(authorFields ...AuthorField) AuthorBuilder {
 	ub.t.Helper()
 
 	fields := make([]string, 0, len(authorFields))
@@ -84,39 +84,39 @@ func (ub *testAuthorBuilder) Zero(authorFields ...TestAuthorField) TestAuthorBui
 	ub.builder = ub.builder.Zero(fields...)
 	return ub
 }
-func (ub *testAuthorBuilder) ResetAfter() TestAuthorBuilder {
+func (ub *authorBuilder) ResetAfter() AuthorBuilder {
 	ub.t.Helper()
 
 	ub.builder = ub.builder.ResetAfter()
 	return ub
 }
 
-func (ub *testAuthorBuilder) EachParam(authorParams ...Author) TestAuthorBuilder {
+func (ub *authorBuilder) EachParam(authorParams ...Author) AuthorBuilder {
 	ub.t.Helper()
 
 	ub.builder = ub.builder.EachParam(fixtory.ConvertToInterfaceArray(authorParams)...)
 	return ub
 }
 
-func (ub *testAuthorBuilder) Build() *Author {
+func (ub *authorBuilder) Build() *Author {
 	ub.t.Helper()
 
 	return ub.builder.Build().(*Author)
 }
 
-func (ub *testAuthorBuilder) Build2() (*Author, *Author) {
+func (ub *authorBuilder) Build2() (*Author, *Author) {
 	ub.t.Helper()
 
 	return ub.Build(), ub.Build()
 }
 
-func (ub *testAuthorBuilder) Build3() (*Author, *Author, *Author) {
+func (ub *authorBuilder) Build3() (*Author, *Author, *Author) {
 	ub.t.Helper()
 
 	return ub.Build(), ub.Build(), ub.Build()
 }
 
-func (ub *testAuthorBuilder) BuildList(n int) []*Author {
+func (ub *authorBuilder) BuildList(n int) []*Author {
 	ub.t.Helper()
 
 	authors := make([]*Author, 0, n)
@@ -126,16 +126,16 @@ func (ub *testAuthorBuilder) BuildList(n int) []*Author {
 	return authors
 }
 
-type TestArticleFactory interface {
-	NewBuilder(bluePrint TestArticleBluePrintFunc, traits ...Article) TestArticleBuilder
+type ArticleFactory interface {
+	NewBuilder(bluePrint ArticleBluePrintFunc, traits ...Article) ArticleBuilder
 	OnBuild(onBuild func(t *testing.T, article *Article))
 	Reset()
 }
 
-type TestArticleBuilder interface {
-	EachParam(articleParams ...Article) TestArticleBuilder
-	Zero(articleFields ...TestArticleField) TestArticleBuilder
-	ResetAfter() TestArticleBuilder
+type ArticleBuilder interface {
+	EachParam(articleParams ...Article) ArticleBuilder
+	Zero(articleFields ...ArticleField) ArticleBuilder
+	ResetAfter() ArticleBuilder
 
 	Build() *Article
 	Build2() (*Article, *Article)
@@ -143,38 +143,38 @@ type TestArticleBuilder interface {
 	BuildList(n int) []*Article
 }
 
-type TestArticleBluePrintFunc func(i int, last Article) Article
+type ArticleBluePrintFunc func(i int, last Article) Article
 
-type TestArticleField string
+type ArticleField string
 
 const (
-	TestArticleID                 TestArticleField = "ID"
-	TestArticleTitle              TestArticleField = "Title"
-	TestArticleBody               TestArticleField = "Body"
-	TestArticleAuthorID           TestArticleField = "AuthorID"
-	TestArticlePublishScheduledAt TestArticleField = "PublishScheduledAt"
-	TestArticlePublishedAt        TestArticleField = "PublishedAt"
-	TestArticleStatus             TestArticleField = "Status"
-	TestArticleLikeCount          TestArticleField = "LikeCount"
+	ArticleIDField                 ArticleField = "ID"
+	ArticleTitleField              ArticleField = "Title"
+	ArticleBodyField               ArticleField = "Body"
+	ArticleAuthorIDField           ArticleField = "AuthorID"
+	ArticlePublishScheduledAtField ArticleField = "PublishScheduledAt"
+	ArticlePublishedAtField        ArticleField = "PublishedAt"
+	ArticleStatusField             ArticleField = "Status"
+	ArticleLikeCountField          ArticleField = "LikeCount"
 )
 
-type testArticleFactory struct {
+type articleFactory struct {
 	t       *testing.T
 	factory *fixtory.Factory
 }
 
-type testArticleBuilder struct {
+type articleBuilder struct {
 	t       *testing.T
 	builder *fixtory.Builder
 }
 
-func TestNewArticleFactory(t *testing.T) TestArticleFactory {
+func NewArticleFactory(t *testing.T) ArticleFactory {
 	t.Helper()
 
-	return &testArticleFactory{t: t, factory: fixtory.NewFactory(t, Article{})}
+	return &articleFactory{t: t, factory: fixtory.NewFactory(t, Article{})}
 }
 
-func (uf *testArticleFactory) NewBuilder(bluePrint TestArticleBluePrintFunc, articleTraits ...Article) TestArticleBuilder {
+func (uf *articleFactory) NewBuilder(bluePrint ArticleBluePrintFunc, articleTraits ...Article) ArticleBuilder {
 	uf.t.Helper()
 
 	var bp fixtory.BluePrintFunc
@@ -183,22 +183,22 @@ func (uf *testArticleFactory) NewBuilder(bluePrint TestArticleBluePrintFunc, art
 	}
 	builder := uf.factory.NewBuilder(bp, fixtory.ConvertToInterfaceArray(articleTraits)...)
 
-	return &testArticleBuilder{t: uf.t, builder: builder}
+	return &articleBuilder{t: uf.t, builder: builder}
 }
 
-func (uf *testArticleFactory) OnBuild(onBuild func(t *testing.T, article *Article)) {
+func (uf *articleFactory) OnBuild(onBuild func(t *testing.T, article *Article)) {
 	uf.t.Helper()
 
 	uf.factory.OnBuild = func(t *testing.T, v interface{}) { onBuild(t, v.(*Article)) }
 }
 
-func (uf *testArticleFactory) Reset() {
+func (uf *articleFactory) Reset() {
 	uf.t.Helper()
 
 	uf.factory.Reset()
 }
 
-func (ub *testArticleBuilder) Zero(articleFields ...TestArticleField) TestArticleBuilder {
+func (ub *articleBuilder) Zero(articleFields ...ArticleField) ArticleBuilder {
 	ub.t.Helper()
 
 	fields := make([]string, 0, len(articleFields))
@@ -209,39 +209,39 @@ func (ub *testArticleBuilder) Zero(articleFields ...TestArticleField) TestArticl
 	ub.builder = ub.builder.Zero(fields...)
 	return ub
 }
-func (ub *testArticleBuilder) ResetAfter() TestArticleBuilder {
+func (ub *articleBuilder) ResetAfter() ArticleBuilder {
 	ub.t.Helper()
 
 	ub.builder = ub.builder.ResetAfter()
 	return ub
 }
 
-func (ub *testArticleBuilder) EachParam(articleParams ...Article) TestArticleBuilder {
+func (ub *articleBuilder) EachParam(articleParams ...Article) ArticleBuilder {
 	ub.t.Helper()
 
 	ub.builder = ub.builder.EachParam(fixtory.ConvertToInterfaceArray(articleParams)...)
 	return ub
 }
 
-func (ub *testArticleBuilder) Build() *Article {
+func (ub *articleBuilder) Build() *Article {
 	ub.t.Helper()
 
 	return ub.builder.Build().(*Article)
 }
 
-func (ub *testArticleBuilder) Build2() (*Article, *Article) {
+func (ub *articleBuilder) Build2() (*Article, *Article) {
 	ub.t.Helper()
 
 	return ub.Build(), ub.Build()
 }
 
-func (ub *testArticleBuilder) Build3() (*Article, *Article, *Article) {
+func (ub *articleBuilder) Build3() (*Article, *Article, *Article) {
 	ub.t.Helper()
 
 	return ub.Build(), ub.Build(), ub.Build()
 }
 
-func (ub *testArticleBuilder) BuildList(n int) []*Article {
+func (ub *articleBuilder) BuildList(n int) []*Article {
 	ub.t.Helper()
 
 	articles := make([]*Article, 0, n)

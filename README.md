@@ -84,8 +84,8 @@ var articleBluePrint = func(i int, last Article) Article {
 }
 
 func TestArticleList_SelectAuthoredBy(t *testing.T) {
-	authorFactory := TestNewAuthorFactory(t)
-	articleFactory := TestNewArticleFactory(t)
+	authorFactory := NewAuthorFactory(t)
+	articleFactory := NewArticleFactory(t)
 
 	author1, author2 := authorFactory.NewBuilder(authorBluePrint).Build2()
 	articlesAuthoredBy1 := articleFactory.NewBuilder(articleBluePrint, Article{AuthorID: author1.ID}).BuildList(4)
@@ -153,16 +153,17 @@ articles:= articleFactory.NewBuilder(
                nil, 
                articleTraitPublished,
                Article{AuthorID: 5, PublishedAt: time.Now().Add(-1 * time.Minute)},
-           ).BuildList(5)
+           ).BuildList(2)
 ```
 
 ### 3. Each Param
-When you want to overwrite a specific fixture in the list, use WithEachParam.
+When you want to overwrite a specific fixture in the list, use EachParam.
 Each Param overwrites the same index struct as parameter.
 ※ Only non-zero value will be set.
 ```
+articleFactory := NewArticleFactory(t)
 articles := articleFactory.NewBuilder(nil, Article{Title: "test article"})
-                .WithEachParam(Article{AuthorID: 1}, Article{AuthorID: 2}, Article{AuthorID: 2})
+                .EachParam(Article{AuthorID: 1}, Article{AuthorID: 2}, Article{AuthorID: 2})
                 .BuildList(3)
 ```
 
@@ -170,9 +171,9 @@ articles := articleFactory.NewBuilder(nil, Article{Title: "test article"})
 Since there is no way to distinguish default zero value or intentionally set zero in params,
 you can overwrite fields with zero value like below, and it will be applied at the last minute.
 ```
-articleFactory := TestNewArticleFactory(t)
+articleFactory := NewArticleFactory(t)
 // AuthorID will be overwritten with zero value.
 articles := articleFactory.NewBuilder(articleBluePrint, Article{AuthorID: author1.ID}).
-                WithZero(TestArticleAuthorID).
+                Zero(ArticleAuthorIDField).
                 BuildList(4)
 ```

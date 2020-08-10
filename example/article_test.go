@@ -44,14 +44,14 @@ var articleTraitPublished = Article{
 }
 
 func TestArticleList_SelectPublished(t *testing.T) {
-	articleFactory := TestNewArticleFactory(t)
+	articleFactory := NewArticleFactory(t)
 	// if you want to persist articles, set OnBuild func here
 	articleFactory.OnBuild(func(t *testing.T, article *Article) { fmt.Println("Insert to db here") })
 
 	// creates 3 different articles
 	waitReview, publishedScheduled, published := articleFactory.NewBuilder(articleBluePrint).
 		EachParam(articleTraitDraft, articleTraitPublishScheduled, articleTraitPublished).
-		Zero(TestArticleLikeCount).
+		Zero(ArticleLikeCountField).
 		ResetAfter().
 		Build3()
 
@@ -76,8 +76,8 @@ func TestArticleList_SelectPublished(t *testing.T) {
 }
 
 func TestArticleList_SelectAuthoredBy(t *testing.T) {
-	authorFactory := TestNewAuthorFactory(t)
-	articleFactory := TestNewArticleFactory(t)
+	authorFactory := NewAuthorFactory(t)
+	articleFactory := NewArticleFactory(t)
 
 	author1, author2 := authorFactory.NewBuilder(authorBluePrint).Build2()
 	articlesAuthoredBy1 := articleFactory.NewBuilder(articleBluePrint, Article{AuthorID: author1.ID}).BuildList(4)

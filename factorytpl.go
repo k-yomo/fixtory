@@ -15,17 +15,22 @@ import (
 
 const factoryTpl = `
 {{$lowerStructName := .StructName | ToLower }}
+{{$factoryInterface := printf "%s%s" .StructName "Factory" }}
+{{$builderInterface := printf "%s%s" .StructName "Builder" }}
+{{$factory := printf "%s%s" $lowerStructName "Factory" }}
+{{$builder := printf "%s%s" $lowerStructName "Builder" }}
+{{$fieldType := printf "%s%s" .StructName "Field" }}
 
-type Test{{ .StructName }}Factory interface {
-	NewBuilder(bluePrint Test{{ .StructName }}BluePrintFunc, traits ...{{ .StructName }}) Test{{ .StructName }}Builder
+type {{ $factoryInterface }} interface {
+	NewBuilder(bluePrint {{ .StructName }}BluePrintFunc, traits ...{{ .StructName }}) {{ $builderInterface }}
 	OnBuild(onBuild func(t *testing.T, {{ $lowerStructName }} *{{ .StructName }}))
 	Reset()
 }
 
-type Test{{ .StructName }}Builder interface {
-	EachParam({{ $lowerStructName }}Params ...{{ .StructName }}) Test{{ .StructName }}Builder
-	Zero({{ $lowerStructName }}Fields ...Test{{ .StructName }}Field) Test{{ .StructName }}Builder
-	ResetAfter() Test{{ .StructName }}Builder
+type {{ $builderInterface }} interface {
+	EachParam({{ $lowerStructName }}Params ...{{ .StructName }}) {{ $builderInterface }}
+	Zero({{ $lowerStructName }}Fields ...{{ $fieldType }}) {{ $builderInterface }}
+	ResetAfter() {{ $builderInterface }}
 
 	Build() *{{ .StructName }}
 	Build2() (*{{ .StructName }}, *{{ .StructName }})
@@ -33,33 +38,33 @@ type Test{{ .StructName }}Builder interface {
 	BuildList(n int) []*{{ .StructName }}
 }
 
-type Test{{ .StructName }}BluePrintFunc func(i int, last {{ .StructName }}) {{ .StructName }}
+type {{ .StructName }}BluePrintFunc func(i int, last {{ .StructName }}) {{ .StructName }}
 
-type Test{{ .StructName }}Field string
+type {{ $fieldType }} string
 
 const (
 {{- range .FieldNames }}
-	Test{{ $.StructName }}{{ . }} Test{{ $.StructName }}Field = "{{ . }}"
+	{{ $.StructName }}{{ . }}Field {{ $fieldType }} = "{{ . }}"
 {{- end}}
 )
 
-type test{{ .StructName }}Factory struct {
+type {{ $factory }} struct {
 	t       *testing.T
 	factory *fixtory.Factory
 }
 
-type test{{ .StructName }}Builder struct {
+type {{ $builder }} struct {
 	t       *testing.T
 	builder *fixtory.Builder
 }
 
-func TestNew{{ .StructName }}Factory(t *testing.T) Test{{ .StructName }}Factory {
+func New{{ .StructName }}Factory(t *testing.T) {{ $factoryInterface }} {
 	t.Helper()
 
-	return &test{{ .StructName }}Factory{t: t, factory: fixtory.NewFactory(t, {{ .StructName }}{})}
+	return &{{ $factory }}{t: t, factory: fixtory.NewFactory(t, {{ .StructName }}{})}
 }
 
-func (uf *test{{ .StructName }}Factory) NewBuilder(bluePrint Test{{ .StructName }}BluePrintFunc, {{ $lowerStructName }}Traits ...{{ .StructName }}) Test{{ .StructName }}Builder {
+func (uf *{{ $factory }}) NewBuilder(bluePrint {{ .StructName }}BluePrintFunc, {{ $lowerStructName }}Traits ...{{ .StructName }}) {{ $builderInterface }} {
 	uf.t.Helper()
 
 	var bp fixtory.BluePrintFunc
@@ -68,22 +73,22 @@ func (uf *test{{ .StructName }}Factory) NewBuilder(bluePrint Test{{ .StructName 
 	}
 	builder := uf.factory.NewBuilder(bp, fixtory.ConvertToInterfaceArray({{ $lowerStructName }}Traits)...)
 
-	return &test{{ .StructName }}Builder{t: uf.t, builder: builder}
+	return &{{ $builder }}{t: uf.t, builder: builder}
 }
 
-func (uf *test{{ .StructName }}Factory) OnBuild(onBuild func(t *testing.T, {{ $lowerStructName }} *{{ .StructName }})) {
+func (uf *{{ $factory }}) OnBuild(onBuild func(t *testing.T, {{ $lowerStructName }} *{{ .StructName }})) {
 	uf.t.Helper()
 
 	uf.factory.OnBuild = func(t *testing.T, v interface{}) { onBuild(t, v.(*{{ .StructName }})) }
 }
 
-func (uf *test{{ .StructName }}Factory) Reset() {
+func (uf *{{ $factory }}) Reset() {
 	uf.t.Helper()
 
 	uf.factory.Reset()
 }
 
-func (ub *test{{ .StructName }}Builder) Zero({{ $lowerStructName }}Fields ...Test{{ .StructName }}Field) Test{{ .StructName }}Builder {
+func (ub *{{ $builder }}) Zero({{ $lowerStructName }}Fields ...{{ $fieldType }}) {{ $builderInterface }} {
 	ub.t.Helper()
 
 	fields := make([]string, 0, len({{ $lowerStructName }}Fields))
@@ -94,39 +99,39 @@ func (ub *test{{ .StructName }}Builder) Zero({{ $lowerStructName }}Fields ...Tes
 	ub.builder = ub.builder.Zero(fields...)
 	return ub
 }
-func (ub *test{{ .StructName }}Builder) ResetAfter() Test{{ .StructName }}Builder {
+func (ub *{{ $builder }}) ResetAfter() {{ $builderInterface }} {
 	ub.t.Helper()
 
 	ub.builder = ub.builder.ResetAfter()
 	return ub
 }
 
-func (ub *test{{ .StructName }}Builder) EachParam({{ $lowerStructName }}Params ...{{ .StructName }}) Test{{ .StructName }}Builder {
+func (ub *{{ $builder }}) EachParam({{ $lowerStructName }}Params ...{{ .StructName }}) {{ $builderInterface }} {
 	ub.t.Helper()
 
 	ub.builder = ub.builder.EachParam(fixtory.ConvertToInterfaceArray({{ $lowerStructName }}Params)...)
 	return ub
 }
 
-func (ub *test{{ .StructName }}Builder) Build() *{{ .StructName }} {
+func (ub *{{ $builder }}) Build() *{{ .StructName }} {
 	ub.t.Helper()
 
 	return ub.builder.Build().(*{{ .StructName }})
 }
 
-func (ub *test{{ .StructName }}Builder) Build2() (*{{ .StructName }}, *{{ .StructName }}) {
+func (ub *{{ $builder }}) Build2() (*{{ .StructName }}, *{{ .StructName }}) {
 	ub.t.Helper()
 
 	return ub.Build(), ub.Build()
 }
 
-func (ub *test{{ .StructName }}Builder) Build3() (*{{ .StructName }}, *{{ .StructName }}, *{{ .StructName }}) {
+func (ub *{{ $builder }}) Build3() (*{{ .StructName }}, *{{ .StructName }}, *{{ .StructName }}) {
 	ub.t.Helper()
 
 	return ub.Build(), ub.Build(), ub.Build()
 }
 
-func (ub *test{{ .StructName }}Builder) BuildList(n int) []*{{ .StructName }} {
+func (ub *{{ $builder }}) BuildList(n int) []*{{ .StructName }} {
 	ub.t.Helper()
 
 	{{ $lowerStructName }}s := make([]*{{ .StructName }}, 0, n)
