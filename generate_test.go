@@ -10,6 +10,7 @@ func TestGenerate(t *testing.T) {
 	type args struct {
 		targetDir string
 		types     []string
+		pkgName   *string
 		newWriter func() (io.Writer, func() error, error)
 	}
 	tests := []struct {
@@ -31,7 +32,7 @@ func TestGenerate(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := Generate(tt.args.targetDir, tt.args.types, tt.args.newWriter); (err != nil) != tt.wantErr {
+			if err := Generate(tt.args.targetDir, tt.args.types, tt.args.pkgName, tt.args.newWriter); (err != nil) != tt.wantErr {
 				t.Errorf("Generate() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
