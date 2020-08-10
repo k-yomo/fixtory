@@ -42,17 +42,18 @@ func (uf *Factory) Reset() {
 	uf.index = 0
 }
 
-func (b *Builder) WithZero(fields ...string) *Builder {
-	b.zeroFields = fields
-	return b
-}
-func (b *Builder) WithReset() *Builder {
-	b.resetAfterBuild = true
+func (b *Builder) EachParam(params ...interface{}) *Builder {
+	b.eachParam = params
 	return b
 }
 
-func (b *Builder) WithEachParam(params ...interface{}) *Builder {
-	b.eachParam = params
+func (b *Builder) Zero(fields ...string) *Builder {
+	b.zeroFields = fields
+	return b
+}
+
+func (b *Builder) ResetAfter() *Builder {
+	b.resetAfterBuild = true
 	return b
 }
 

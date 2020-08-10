@@ -23,13 +23,14 @@ type Test{{ .StructName }}Factory interface {
 }
 
 type Test{{ .StructName }}Builder interface {
+	EachParam({{ $lowerStructName }}Params ...{{ .StructName }}) Test{{ .StructName }}Builder
+	Zero({{ $lowerStructName }}Fields ...Test{{ .StructName }}Field) Test{{ .StructName }}Builder
+	ResetAfter() Test{{ .StructName }}Builder
+
 	Build() *{{ .StructName }}
 	Build2() (*{{ .StructName }}, *{{ .StructName }})
 	Build3() (*{{ .StructName }}, *{{ .StructName }}, *{{ .StructName }})
 	BuildList(n int) []*{{ .StructName }}
-	WithZero({{ $lowerStructName }}Fields ...Test{{ .StructName }}Field) Test{{ .StructName }}Builder
-	WithReset() Test{{ .StructName }}Builder
-	WithEachParam({{ $lowerStructName }}Params ...{{ .StructName }}) Test{{ .StructName }}Builder
 }
 
 type Test{{ .StructName }}BluePrintFunc func(i int, last {{ .StructName }}) {{ .StructName }}
@@ -82,7 +83,7 @@ func (uf *test{{ .StructName }}Factory) Reset() {
 	uf.factory.Reset()
 }
 
-func (ub *test{{ .StructName }}Builder) WithZero({{ $lowerStructName }}Fields ...Test{{ .StructName }}Field) Test{{ .StructName }}Builder {
+func (ub *test{{ .StructName }}Builder) Zero({{ $lowerStructName }}Fields ...Test{{ .StructName }}Field) Test{{ .StructName }}Builder {
 	ub.t.Helper()
 
 	fields := make([]string, 0, len({{ $lowerStructName }}Fields))
@@ -90,20 +91,20 @@ func (ub *test{{ .StructName }}Builder) WithZero({{ $lowerStructName }}Fields ..
 		fields = append(fields, string(f))
 	}
 
-	ub.builder = ub.builder.WithZero(fields...)
+	ub.builder = ub.builder.Zero(fields...)
 	return ub
 }
-func (ub *test{{ .StructName }}Builder) WithReset() Test{{ .StructName }}Builder {
+func (ub *test{{ .StructName }}Builder) ResetAfter() Test{{ .StructName }}Builder {
 	ub.t.Helper()
 
-	ub.builder = ub.builder.WithReset()
+	ub.builder = ub.builder.ResetAfter()
 	return ub
 }
 
-func (ub *test{{ .StructName }}Builder) WithEachParam({{ $lowerStructName }}Params ...{{ .StructName }}) Test{{ .StructName }}Builder {
+func (ub *test{{ .StructName }}Builder) EachParam({{ $lowerStructName }}Params ...{{ .StructName }}) Test{{ .StructName }}Builder {
 	ub.t.Helper()
 
-	ub.builder = ub.builder.WithEachParam(fixtory.ConvertToInterfaceArray({{ $lowerStructName }}Params)...)
+	ub.builder = ub.builder.EachParam(fixtory.ConvertToInterfaceArray({{ $lowerStructName }}Params)...)
 	return ub
 }
 

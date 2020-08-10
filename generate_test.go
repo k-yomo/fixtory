@@ -10,7 +10,7 @@ func TestGenerate(t *testing.T) {
 	type args struct {
 		targetDir string
 		types     []string
-		pkgName   *string
+		pkgName   string
 		newWriter func() (io.Writer, func() error, error)
 	}
 	tests := []struct {

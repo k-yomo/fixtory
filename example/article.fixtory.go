@@ -14,13 +14,14 @@ type TestAuthorFactory interface {
 }
 
 type TestAuthorBuilder interface {
+	EachParam(authorParams ...Author) TestAuthorBuilder
+	Zero(authorFields ...TestAuthorField) TestAuthorBuilder
+	ResetAfter() TestAuthorBuilder
+
 	Build() *Author
 	Build2() (*Author, *Author)
 	Build3() (*Author, *Author, *Author)
 	BuildList(n int) []*Author
-	WithZero(authorFields ...TestAuthorField) TestAuthorBuilder
-	WithReset() TestAuthorBuilder
-	WithEachParam(authorParams ...Author) TestAuthorBuilder
 }
 
 type TestAuthorBluePrintFunc func(i int, last Author) Author
@@ -72,7 +73,7 @@ func (uf *testAuthorFactory) Reset() {
 	uf.factory.Reset()
 }
 
-func (ub *testAuthorBuilder) WithZero(authorFields ...TestAuthorField) TestAuthorBuilder {
+func (ub *testAuthorBuilder) Zero(authorFields ...TestAuthorField) TestAuthorBuilder {
 	ub.t.Helper()
 
 	fields := make([]string, 0, len(authorFields))
@@ -80,20 +81,20 @@ func (ub *testAuthorBuilder) WithZero(authorFields ...TestAuthorField) TestAutho
 		fields = append(fields, string(f))
 	}
 
-	ub.builder = ub.builder.WithZero(fields...)
+	ub.builder = ub.builder.Zero(fields...)
 	return ub
 }
-func (ub *testAuthorBuilder) WithReset() TestAuthorBuilder {
+func (ub *testAuthorBuilder) ResetAfter() TestAuthorBuilder {
 	ub.t.Helper()
 
-	ub.builder = ub.builder.WithReset()
+	ub.builder = ub.builder.ResetAfter()
 	return ub
 }
 
-func (ub *testAuthorBuilder) WithEachParam(authorParams ...Author) TestAuthorBuilder {
+func (ub *testAuthorBuilder) EachParam(authorParams ...Author) TestAuthorBuilder {
 	ub.t.Helper()
 
-	ub.builder = ub.builder.WithEachParam(fixtory.ConvertToInterfaceArray(authorParams)...)
+	ub.builder = ub.builder.EachParam(fixtory.ConvertToInterfaceArray(authorParams)...)
 	return ub
 }
 
@@ -132,13 +133,14 @@ type TestArticleFactory interface {
 }
 
 type TestArticleBuilder interface {
+	EachParam(articleParams ...Article) TestArticleBuilder
+	Zero(articleFields ...TestArticleField) TestArticleBuilder
+	ResetAfter() TestArticleBuilder
+
 	Build() *Article
 	Build2() (*Article, *Article)
 	Build3() (*Article, *Article, *Article)
 	BuildList(n int) []*Article
-	WithZero(articleFields ...TestArticleField) TestArticleBuilder
-	WithReset() TestArticleBuilder
-	WithEachParam(articleParams ...Article) TestArticleBuilder
 }
 
 type TestArticleBluePrintFunc func(i int, last Article) Article
@@ -196,7 +198,7 @@ func (uf *testArticleFactory) Reset() {
 	uf.factory.Reset()
 }
 
-func (ub *testArticleBuilder) WithZero(articleFields ...TestArticleField) TestArticleBuilder {
+func (ub *testArticleBuilder) Zero(articleFields ...TestArticleField) TestArticleBuilder {
 	ub.t.Helper()
 
 	fields := make([]string, 0, len(articleFields))
@@ -204,20 +206,20 @@ func (ub *testArticleBuilder) WithZero(articleFields ...TestArticleField) TestAr
 		fields = append(fields, string(f))
 	}
 
-	ub.builder = ub.builder.WithZero(fields...)
+	ub.builder = ub.builder.Zero(fields...)
 	return ub
 }
-func (ub *testArticleBuilder) WithReset() TestArticleBuilder {
+func (ub *testArticleBuilder) ResetAfter() TestArticleBuilder {
 	ub.t.Helper()
 
-	ub.builder = ub.builder.WithReset()
+	ub.builder = ub.builder.ResetAfter()
 	return ub
 }
 
-func (ub *testArticleBuilder) WithEachParam(articleParams ...Article) TestArticleBuilder {
+func (ub *testArticleBuilder) EachParam(articleParams ...Article) TestArticleBuilder {
 	ub.t.Helper()
 
-	ub.builder = ub.builder.WithEachParam(fixtory.ConvertToInterfaceArray(articleParams)...)
+	ub.builder = ub.builder.EachParam(fixtory.ConvertToInterfaceArray(articleParams)...)
 	return ub
 }
 
