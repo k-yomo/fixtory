@@ -71,7 +71,7 @@ func TestBuilder_Build(t *testing.T) {
 	}{
 		{
 			name:    "initializes struct with nil blueprint",
-			builder: fac.NewBuilder(nil, testStruct{Int: 5}).WithReset(),
+			builder: fac.NewBuilder(nil, testStruct{Int: 5}).ResetAfter(),
 			want:    &testStruct{Int: 5},
 		},
 		{
@@ -88,7 +88,7 @@ func TestBuilder_Build(t *testing.T) {
 						Int:    10,
 					},
 				}
-			}, testStruct{String: "setByTrait1", Int: 10}, testStruct{String: "setByTrait2", Array: []int{1, 2, 3}}).WithZero("Map"),
+			}, testStruct{String: "setByTrait1", Int: 10}, testStruct{String: "setByTrait2", Array: []int{1, 2, 3}}).Zero("Map"),
 			want: &testStruct{
 				String: "setByTrait2",
 				Int:    10,
@@ -190,9 +190,9 @@ func TestBuilder_BuildList(t *testing.T) {
 					},
 				}
 			}, testStruct{}).
-				WithEachParam(testStruct{Float: 0.1}, testStruct{Float: 0.2}, testStruct{Float: 0.3}).
-				WithZero("Map").
-				WithReset(),
+				EachParam(testStruct{Float: 0.1}, testStruct{Float: 0.2}, testStruct{Float: 0.3}).
+				Zero("Map").
+				ResetAfter(),
 			args: args{n: 3},
 			want: []interface{}{
 				&testStruct{String: "test", Int: 1, Float: 0.1, ChildStruct: &childStruct{String: "a"}},
@@ -205,9 +205,9 @@ func TestBuilder_BuildList(t *testing.T) {
 			builder: fac.NewBuilder(func(i int, last interface{}) interface{} {
 				return testStruct{Int: i + 1}
 			}).
-				WithEachParam(testStruct{Float: 0.1}, testStruct{}, testStruct{Float: 0.3}).
-				WithZero("Map").
-				WithReset(),
+				EachParam(testStruct{Float: 0.1}, testStruct{}, testStruct{Float: 0.3}).
+				Zero("Map").
+				ResetAfter(),
 			args: args{n: 3},
 			want: []interface{}{
 				&testStruct{Int: 1, Float: 0.1},

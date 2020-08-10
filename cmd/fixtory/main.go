@@ -58,7 +58,7 @@ func main() {
 		}
 		return writer, func() error { return writer.Close() }, nil
 	}
-	if err := fixtory.Generate(targetDir, types, pkgName, newWriter); err != nil {
+	if err := fixtory.Generate(targetDir, types, *pkgName, newWriter); err != nil {
 		color.Red("%+v", err)
 		os.Exit(1)
 	}
