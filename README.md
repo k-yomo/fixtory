@@ -18,9 +18,22 @@ $ go get github.com/k-yomo/fixtory
 ```
 
 ## Usage
+```
+Usage of fixtory:
+        fixtory [flags] -type T [directory]
+Flags:
+  -output string
+        output file name; default srcdir/fixtory_gen.go
+  -package string
+        package name; default same package as the type
+  -type string
+        comma-separated list of type names; must be set
+```
+
+## Getting started
 Complete code is in [example](example).
 
-- Add `go:generate` comment to generate factories
+1. Add `go:generate` comment to generate factories
 ```
 //go:generate fixtory -type=Author,Article -output=article.fixtory.go
 
@@ -43,12 +56,12 @@ type Article struct {
 }
 ```
 
-- Generate fixture factories
+2. Generate fixture factories
 ```
 $ go generate ./...
 ```
 
-- Use factory to initialize fixtures
+3. Use factory to initialize fixtures
 ```
 var authorBluePrint = func(i int, last Author) Author {
 	num := i + 1
