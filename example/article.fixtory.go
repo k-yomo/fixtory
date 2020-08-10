@@ -45,7 +45,7 @@ type testAuthorBuilder struct {
 func TestNewAuthorFactory(t *testing.T) TestAuthorFactory {
 	t.Helper()
 
-	return &testAuthorFactory{t: t, factory: fixtory.NewFactory(t, &Author{})}
+	return &testAuthorFactory{t: t, factory: fixtory.NewFactory(t, Author{})}
 }
 
 func (uf *testAuthorFactory) NewBuilder(bluePrint TestAuthorBluePrintFunc, authorTraits ...Author) TestAuthorBuilder {
@@ -53,7 +53,7 @@ func (uf *testAuthorFactory) NewBuilder(bluePrint TestAuthorBluePrintFunc, autho
 
 	var bp fixtory.BluePrintFunc
 	if bluePrint != nil {
-		bp = func(i int, last interface{}) interface{} { return bluePrint(i, *last.(*Author)) }
+		bp = func(i int, last interface{}) interface{} { return bluePrint(i, last.(Author)) }
 	}
 	builder := uf.factory.NewBuilder(bp, fixtory.ConvertToInterfaceArray(authorTraits)...)
 
@@ -169,7 +169,7 @@ type testArticleBuilder struct {
 func TestNewArticleFactory(t *testing.T) TestArticleFactory {
 	t.Helper()
 
-	return &testArticleFactory{t: t, factory: fixtory.NewFactory(t, &Article{})}
+	return &testArticleFactory{t: t, factory: fixtory.NewFactory(t, Article{})}
 }
 
 func (uf *testArticleFactory) NewBuilder(bluePrint TestArticleBluePrintFunc, articleTraits ...Article) TestArticleBuilder {
@@ -177,7 +177,7 @@ func (uf *testArticleFactory) NewBuilder(bluePrint TestArticleBluePrintFunc, art
 
 	var bp fixtory.BluePrintFunc
 	if bluePrint != nil {
-		bp = func(i int, last interface{}) interface{} { return bluePrint(i, *last.(*Article)) }
+		bp = func(i int, last interface{}) interface{} { return bluePrint(i, last.(Article)) }
 	}
 	builder := uf.factory.NewBuilder(bp, fixtory.ConvertToInterfaceArray(articleTraits)...)
 

@@ -1,6 +1,7 @@
 ![Fixtory Logo](https://user-images.githubusercontent.com/24503508/89726870-a4803980-da5a-11ea-9b84-d06eb73c7fdf.png)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/k-yomo/fixtory/blob/master/LICENSE)
 [![Main Workflow](https://github.com/k-yomo/fixtory/workflows/Main%20Workflow/badge.svg)](https://github.com/k-yomo/fixtory/actions?query=workflow%3A%22Main+Workflow%22)
+[![codecov](https://codecov.io/gh/k-yomo/fixtory/branch/master/graph/badge.svg)](https://codecov.io/gh/k-yomo/fixtory)
 [![Go Report Card](https://goreportcard.com/badge/github.com/k-yomo/fixtory)](https://goreportcard.com/report/github.com/k-yomo/fixtory)
 
 Fixtory is a test fixture factory generator which generates type-safe, DRY, flexible fixture factory.

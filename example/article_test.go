@@ -46,7 +46,7 @@ var articleTraitPublished = Article{
 func TestArticleList_SelectPublished(t *testing.T) {
 	articleFactory := TestNewArticleFactory(t)
 	// if you want to persist articles, set OnBuild func here
-	// articleFactory.OnBuild(func(t *testing.T, article *Article) { fmt.Println("Insert to db here") })
+	articleFactory.OnBuild(func(t *testing.T, article *Article) { fmt.Println("Insert to db here") })
 
 	// creates 3 different articles
 	waitReview, publishedScheduled, published := articleFactory.NewBuilder(articleBluePrint).

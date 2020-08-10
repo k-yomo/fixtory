@@ -42,7 +42,7 @@ type test{{ .StructName }}Builder struct {
 func TestNew{{ .StructName }}Factory(t *testing.T) Test{{ .StructName }}Factory {
 	t.Helper()
 
-	return &test{{ .StructName }}Factory{t: t, factory: fixtory.NewFactory(t, &{{ .StructName }}{})}
+	return &test{{ .StructName }}Factory{t: t, factory: fixtory.NewFactory(t, {{ .StructName }}{})}
 }
 
 func (uf *test{{ .StructName }}Factory) NewBuilder(bluePrint Test{{ .StructName }}BluePrintFunc, {{ $lowerStructName }}Traits ...{{ .StructName }}) Test{{ .StructName }}Builder {
@@ -50,7 +50,7 @@ func (uf *test{{ .StructName }}Factory) NewBuilder(bluePrint Test{{ .StructName 
 
 	var bp fixtory.BluePrintFunc
 	if bluePrint != nil {
-		bp = func(i int, last interface{}) interface{} { return bluePrint(i, *last.(*{{ .StructName }})) }
+		bp = func(i int, last interface{}) interface{} { return bluePrint(i, last.({{ .StructName }})) }
 	}
 	builder := uf.factory.NewBuilder(bp, fixtory.ConvertToInterfaceArray({{ $lowerStructName }}Traits)...)
 

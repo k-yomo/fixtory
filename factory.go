@@ -10,13 +10,17 @@ type BluePrintFunc func(i int, last interface{}) interface{}
 type Factory struct {
 	t           *testing.T
 	productType reflect.Type
-	last        interface{}
-	index       int
-	OnBuild     func(t *testing.T, v interface{})
+	// struct
+	last interface{}
+	// index is the next struct index (which is equal to already built struct count in this factory)
+	index int
+	// v is a pointer to struct
+	OnBuild func(t *testing.T, v interface{})
 }
 
 type Builder struct {
 	*Factory
+	// index is the next struct index in this builder
 	index           int
 	bluePrint       func(i int, last interface{}) interface{}
 	traits          []interface{}
@@ -26,7 +30,7 @@ type Builder struct {
 }
 
 func NewFactory(t *testing.T, v interface{}) *Factory {
-	return &Factory{t: t, productType: reflect.TypeOf(v), index: 0, last: v}
+	return &Factory{t: t, productType: reflect.PtrTo(reflect.TypeOf(v)), index: 0, last: v}
 }
 
 func (uf *Factory) NewBuilder(bluePrint BluePrintFunc, traits ...interface{}) *Builder {
@@ -34,7 +38,7 @@ func (uf *Factory) NewBuilder(bluePrint BluePrintFunc, traits ...interface{}) *B
 }
 
 func (uf *Factory) Reset() {
-	uf.last = nil
+	uf.last = reflect.New(uf.productType.Elem()).Elem().Interface()
 	uf.index = 0
 }
 
@@ -53,7 +57,11 @@ func (b *Builder) WithEachParams(traits ...interface{}) *Builder {
 }
 
 func (b *Builder) Build() interface{} {
-	return b.build()
+	product := b.build()
+	if b.resetAfterBuild {
+		b.Factory.Reset()
+	}
+	return product
 }
 
 func (b *Builder) BuildList(n int) []interface{} {
@@ -62,6 +70,9 @@ func (b *Builder) BuildList(n int) []interface{} {
 	for i := 0; i < n; i++ {
 		users = append(users, b.build())
 	}
+	if b.resetAfterBuild {
+		b.Factory.Reset()
+	}
 	return users
 }
 
@@ -69,7 +80,7 @@ func (b *Builder) build() interface{} {
 	product := reflect.New(b.productType.Elem()).Interface()
 
 	if b.bluePrint != nil {
-		MapNotZeroFields(b.bluePrint(b.index, b.last), product)
+		MapNotZeroFields(b.bluePrint(b.Factory.index, b.last), product)
 	}
 	for _, trait := range b.traits {
 		MapNotZeroFields(trait, product)
@@ -82,7 +93,7 @@ func (b *Builder) build() interface{} {
 		uf.Set(reflect.Zero(uf.Type()))
 	}
 
-	b.last = product
+	b.last = reflect.ValueOf(product).Elem().Interface()
 	b.index++
 	b.Factory.index++
 

@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+// AstPkgWalker represents ast package walker
 type AstPkgWalker struct {
 	FileSet *token.FileSet
 	Pkg     *ast.Package
@@ -20,6 +21,7 @@ type AstPkgWalker struct {
 	PkgPath string
 }
 
+// AllGenDecls returns all generic declaration nodes
 func (w AstPkgWalker) AllGenDecls() []*ast.GenDecl {
 	decls := w.Decls
 	l := make([]*ast.GenDecl, 0, len(decls))
@@ -33,6 +35,7 @@ func (w AstPkgWalker) AllGenDecls() []*ast.GenDecl {
 	return l
 }
 
+// AllStructSpecs returns all struct type specs
 func (w AstPkgWalker) AllStructSpecs() []*ast.TypeSpec {
 	decls := w.AllGenDecls()
 	l := make([]*ast.TypeSpec, 0)
@@ -52,6 +55,7 @@ func (w AstPkgWalker) AllStructSpecs() []*ast.TypeSpec {
 	return l
 }
 
+// DirToAstWalker initializes map of AstPkgWalker from given directory
 func DirToAstWalker(targetDir string) (map[string]AstPkgWalker, error) {
 	fileSet := token.NewFileSet()
 	pkgMap, err := parser.ParseDir(
@@ -74,6 +78,7 @@ func DirToAstWalker(targetDir string) (map[string]AstPkgWalker, error) {
 	return m, nil
 }
 
+// ParseAstPkg parses package ast
 func ParseAstPkg(fset *token.FileSet, pkg *ast.Package) (AstPkgWalker, error) {
 	var aFilePath string
 	for _, file := range pkg.Files {
