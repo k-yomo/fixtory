@@ -5,6 +5,7 @@ import (
 	"github.com/k-yomo/fixtory/pkg/astutil"
 	"go/ast"
 	"go/format"
+	"golang.org/x/xerrors"
 	"io"
 	"strings"
 	"text/template"
@@ -47,7 +48,7 @@ func Generate(targetDir string, types []string, newWriter func() (writer io.Writ
 			tpl := template.Must(template.New("factory").Funcs(template.FuncMap{"ToLower": strings.ToLower}).Parse(factoryTpl))
 			params := tmplParam{StructName: spec.Name.Name, FieldNames: fieldNames}
 			if err := tpl.Execute(body, params); err != nil {
-				panic(err)
+				return xerrors.Errorf("execute factory template: %w", err)
 			}
 		}
 		if body.Len() == 0 {
@@ -61,19 +62,19 @@ func Generate(targetDir string, types []string, newWriter func() (writer io.Writ
 			"Body":          body.String(),
 		})
 		if err != nil {
-			return err
+			return xerrors.Errorf("execute fixtoryFile template: %w", err)
 		}
 
 		str, err := format.Source(out.Bytes())
 		if err != nil {
-			panic(err)
+			return xerrors.Errorf("format.Source: %w", err)
 		}
 
 		writer, closeWriter, err := newWriter()
 		defer closeWriter()
 
 		if _, err := writer.Write(str); err != nil {
-			return err
+			return xerrors.Errorf("write fixtory file: %w", err)
 		}
 	}
 

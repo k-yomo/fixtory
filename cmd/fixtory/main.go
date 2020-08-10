@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/fatih/color"
 	"github.com/k-yomo/fixtory"
+	"golang.org/x/xerrors"
 	"io"
 	"log"
 	"os"
@@ -52,12 +53,12 @@ func main() {
 	newWriter := func() (io.Writer, func() error, error) {
 		writer, err := os.Create(outputPath)
 		if err != nil {
-			return nil, nil, err
+			return nil, nil, xerrors.Errorf("create output file: %w", err)
 		}
 		return writer, func() error { return writer.Close() }, nil
 	}
 	if err := fixtory.Generate(targetDir, types, newWriter); err != nil {
-		color.Red("%v", err)
+		color.Red("%+v", err)
 		os.Exit(1)
 	}
 }

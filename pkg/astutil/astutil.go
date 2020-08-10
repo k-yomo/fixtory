@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"golang.org/x/xerrors"
 	"path/filepath"
 	"sort"
 )
@@ -62,25 +63,22 @@ func DirToAstWalker(targetDir string) (map[string]AstPkgWalker, error) {
 		parser.ParseComments,
 	)
 	if err != nil {
-		return nil, err
+		return nil, xerrors.Errorf("parser.ParseDir: %w", err)
 	}
 
 	m := make(map[string]AstPkgWalker, len(pkgMap))
 	for k, v := range pkgMap {
-		m[k], err = ParseAstPkg(v)
-		if err != nil {
-			return nil, err
-		}
+		m[k] = ParseAstPkg(v)
 	}
 	return m, nil
 }
 
 // ParseAstPkg parses package ast
-func ParseAstPkg(pkg *ast.Package) (AstPkgWalker, error) {
+func ParseAstPkg(pkg *ast.Package) AstPkgWalker {
 	return AstPkgWalker{
 		Pkg:     pkg,
 		Decls:   AllDeclsFromAstPkg(pkg),
-	}, nil
+	}
 }
 
 func AllDeclsFromAstPkg(pkg *ast.Package) []ast.Decl {
