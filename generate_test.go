@@ -7,8 +7,6 @@ import (
 )
 
 func TestGenerate(t *testing.T) {
-	// Since this test fails on CI to resolve package path
-	t.Skip()
 	type args struct {
 		targetDir string
 		types     []string

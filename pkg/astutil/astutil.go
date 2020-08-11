@@ -1,12 +1,14 @@
 package astutil
 
 import (
-	"errors"
+	"fmt"
 	"go/ast"
-	"go/build"
 	"go/parser"
 	"go/token"
+	"golang.org/x/mod/modfile"
 	"golang.org/x/xerrors"
+	"io/ioutil"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -85,7 +87,7 @@ func ParseAstPkg(fset *token.FileSet, pkg *ast.Package) (AstPkgWalker, error) {
 	for _, file := range pkg.Files {
 		aFilePath = fset.File(file.Package).Name()
 	}
-	pkgPath, err := LocalPathToPackagePath(filepath.Dir(aFilePath))
+	pkgPath, err := packageNameOfDir(filepath.Dir(aFilePath))
 	if err != nil {
 		return AstPkgWalker{}, err
 	}
@@ -94,24 +96,6 @@ func ParseAstPkg(fset *token.FileSet, pkg *ast.Package) (AstPkgWalker, error) {
 		Decls:   AllDeclsFromAstPkg(pkg),
 		PkgPath: pkgPath,
 	}, nil
-}
-
-func LocalPathToPackagePath(s string) (string, error) {
-	s, err := filepath.Abs(s)
-	if err != nil {
-		return "", err
-	}
-
-	s = filepath.ToSlash(s)
-
-	for _, srcDir := range build.Default.SrcDirs() {
-		srcDir = filepath.ToSlash(srcDir)
-		prefix := srcDir + "/"
-		if strings.HasPrefix(s, prefix) {
-			return strings.TrimPrefix(s, prefix), nil
-		}
-	}
-	return "", errors.New("failed to resolve package path")
 }
 
 func AllDeclsFromAstPkg(pkg *ast.Package) []ast.Decl {
@@ -134,4 +118,70 @@ func ToSortedFileListFromFileMapOfAst(s map[string]*ast.File) []*ast.File {
 		l[i] = s[name]
 	}
 	return l
+}
+
+// packageNameOfDir get package import path via dir
+func packageNameOfDir(srcDir string) (string, error) {
+	files, err := ioutil.ReadDir(srcDir)
+	if err != nil {
+		return "", err
+	}
+
+	var goFilePath string
+	for _, file := range files {
+		if !file.IsDir() && strings.HasSuffix(file.Name(), ".go") {
+			goFilePath = file.Name()
+			break
+		}
+	}
+	if goFilePath == "" {
+		return "", fmt.Errorf("go source file not found %s", srcDir)
+	}
+
+	packageImport, err := parsePackageImport(srcDir)
+	if err != nil {
+		return "", err
+	}
+	return packageImport, nil
+}
+
+// parseImportPackage get package import path via source file
+// an alternative implementation is to use:
+// cfg := &packages.Config{Mode: packages.NeedName, Tests: true, Dir: srcDir}
+// pkgs, err := packages.Load(cfg, "file="+source)
+// However, it will call "go list" and slow down the performance
+func parsePackageImport(srcDir string) (string, error) {
+	moduleMode := os.Getenv("GO111MODULE")
+	// trying to find the module
+	if moduleMode != "off" {
+		currentDir := srcDir
+		for {
+			dat, err := ioutil.ReadFile(filepath.Join(currentDir, "go.mod"))
+			if os.IsNotExist(err) {
+				if currentDir == filepath.Dir(currentDir) {
+					// at the root
+					break
+				}
+				currentDir = filepath.Dir(currentDir)
+				continue
+			} else if err != nil {
+				return "", err
+			}
+			modulePath := modfile.ModulePath(dat)
+			return filepath.ToSlash(filepath.Join(modulePath, strings.TrimPrefix(srcDir, currentDir))), nil
+		}
+	}
+	// fall back to GOPATH mode
+	goPaths := os.Getenv("GOPATH")
+	if goPaths == "" {
+		return "", xerrors.New("GOPATH is not set")
+	}
+	goPathList := strings.Split(goPaths, string(os.PathListSeparator))
+	for _, goPath := range goPathList {
+		sourceRoot := filepath.Join(goPath, "src") + string(os.PathSeparator)
+		if strings.HasPrefix(srcDir, sourceRoot) {
+			return filepath.ToSlash(strings.TrimPrefix(srcDir, sourceRoot)), nil
+		}
+	}
+	return "", xerrors.New("Source directory is outside GOPATH")
 }
