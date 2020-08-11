@@ -87,7 +87,16 @@ func ParseAstPkg(fset *token.FileSet, pkg *ast.Package) (AstPkgWalker, error) {
 	for _, file := range pkg.Files {
 		aFilePath = fset.File(file.Package).Name()
 	}
-	pkgPath, err := packageNameOfDir(filepath.Dir(aFilePath))
+
+	dir := filepath.Dir(aFilePath)
+	if dir == "." {
+		var err error
+		dir, err = os.Getwd()
+		if err != nil {
+			return AstPkgWalker{}, xerrors.Errorf("get current directory: %w", err)
+		}
+	}
+	pkgPath, err := packageNameOfDir(dir)
 	if err != nil {
 		return AstPkgWalker{}, err
 	}
