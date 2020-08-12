@@ -121,7 +121,7 @@ func (ub *authorBuilder) BuildList(n int) []*Author {
 
 	authors := make([]*Author, 0, n)
 	for i := 0; i < n; i++ {
-		authors = append(authors, ub.builder.Build().(*Author))
+		authors = append(authors, ub.Build())
 	}
 	return authors
 }
@@ -246,7 +246,7 @@ func (ub *articleBuilder) BuildList(n int) []*Article {
 
 	articles := make([]*Article, 0, n)
 	for i := 0; i < n; i++ {
-		articles = append(articles, ub.builder.Build().(*Article))
+		articles = append(articles, ub.Build())
 	}
 	return articles
 }

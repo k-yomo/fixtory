@@ -139,7 +139,7 @@ func (ub *{{ $builder }}) BuildList(n int) []*{{ .StructName }} {
 
 	{{ $lowerStructName }}s := make([]*{{ .StructName }}, 0, n)
 	for i := 0; i < n; i++ {
-		{{ $lowerStructName }}s = append({{ $lowerStructName }}s, ub.builder.Build().(*{{ .StructName }}))
+		{{ $lowerStructName }}s = append({{ $lowerStructName }}s, ub.Build())
 	}
 	return {{ $lowerStructName }}s
 }
