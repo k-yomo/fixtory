@@ -2,6 +2,7 @@ package fixtory
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/k-yomo/fixtory/pkg/astutil"
 	"go/ast"
 	"go/format"
@@ -41,11 +42,17 @@ func Generate(targetDir string, types []string, pkgName string, newWriter func()
 				fieldNames = append(fieldNames, field.Names[0].Name)
 			}
 			tpl := template.Must(template.New("factory").Funcs(template.FuncMap{"ToLower": strings.ToLower}).Parse(factoryTpl))
+			st := spec.Name.Name
+			if pkgName != "" {
+				st = fmt.Sprintf("%s.%s", walker.Pkg.Name, st)
+			}
 			params := struct {
 				StructName string
+				Struct string
 				FieldNames []string
 			}{
 				StructName: spec.Name.Name,
+				Struct: st,
 				FieldNames: fieldNames,
 			}
 			if err := tpl.Execute(body, params); err != nil {
