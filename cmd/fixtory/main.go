@@ -9,6 +9,7 @@ import (
 	"io"
 	"log"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 )
@@ -52,6 +53,10 @@ func main() {
 	}
 
 	newWriter := func() (io.Writer, func() error, error) {
+		dir, _ := path.Split(outputPath)
+		if err := os.MkdirAll(dir, 0755); err != nil {
+			return nil, nil, xerrors.Errorf("create directory: %w", err)
+		}
 		writer, err := os.Create(outputPath)
 		if err != nil {
 			return nil, nil, xerrors.Errorf("create output file: %w", err)
