@@ -14,7 +14,7 @@ By using Fixtory...
 
 ## Installation
 ```
-$ go get github.com/k-yomo/fixtory
+$ go get github.com/k-yomo/fixtory/cmd/fixtory
 ```
 
 ## Usage
