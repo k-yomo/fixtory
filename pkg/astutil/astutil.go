@@ -102,20 +102,20 @@ func ParseAstPkg(fset *token.FileSet, pkg *ast.Package) (AstPkgWalker, error) {
 	}
 	return AstPkgWalker{
 		Pkg:     pkg,
-		Decls:   AllDeclsFromAstPkg(pkg),
+		Decls:   allDeclsFromAstPkg(pkg),
 		PkgPath: pkgPath,
 	}, nil
 }
 
-func AllDeclsFromAstPkg(pkg *ast.Package) []ast.Decl {
+func allDeclsFromAstPkg(pkg *ast.Package) []ast.Decl {
 	decls := make([]ast.Decl, 0)
-	for _, file := range ToSortedFileListFromFileMapOfAst(pkg.Files) {
+	for _, file := range getSortedFileListFromFileAstMap(pkg.Files) {
 		decls = append(decls, file.Decls...)
 	}
 	return decls
 }
 
-func ToSortedFileListFromFileMapOfAst(s map[string]*ast.File) []*ast.File {
+func getSortedFileListFromFileAstMap(s map[string]*ast.File) []*ast.File {
 	names := make([]string, 0, len(s))
 	for name := range s {
 		names = append(names, name)
