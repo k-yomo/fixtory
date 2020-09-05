@@ -64,35 +64,37 @@ func TestBuilder_Build(t *testing.T) {
 		}
 	}
 
+	bluePrint := func(i int, last interface{}) interface{} {
+		return testStruct{
+			String: "setByBlueprint",
+			Int:    last.(testStruct).Int + 1,
+			Float:  0.5,
+			Array:  []int{1, 2, 3},
+			Map:    map[string]bool{"a": true},
+			ChildStruct: &childStruct{
+				String: "child",
+				Int:    10,
+			},
+		}
+	}
+
 	tests := []struct {
 		name    string
 		builder *Builder
 		want    interface{}
 	}{
 		{
-			name:    "initializes struct with nil blueprint",
+			name:    "struct can be initialized with nil blueprint",
 			builder: fac.NewBuilder(nil, testStruct{Int: 5}).ResetAfter(),
 			want:    &testStruct{Int: 5},
 		},
 		{
-			name: "struct is overwritten by traits, and with zero",
-			builder: fac.NewBuilder(func(i int, last interface{}) interface{} {
-				return testStruct{
-					String: "setByBlueprint",
-					Int:    last.(testStruct).Int + 1,
-					Float:  0.5,
-					Array:  []int{1, 2, 3},
-					Map:    map[string]bool{"a": true},
-					ChildStruct: &childStruct{
-						String: "child",
-						Int:    10,
-					},
-				}
-			}, testStruct{String: "setByTrait1", Int: 10}, testStruct{String: "setByTrait2", Array: []int{1, 2, 3}}).Zero("Map"),
+			name: "struct is overwritten by traits, zero, each param",
+			builder: fac.NewBuilder(bluePrint, testStruct{String: "setByTrait1", Int: 10}, testStruct{String: "setByTrait2", Array: []int{1, 2, 3}}).Zero("Map").EachParam(testStruct{Float: 10.9}),
 			want: &testStruct{
 				String: "setByTrait2",
 				Int:    10,
-				Float:  0.5,
+				Float:  10.9,
 				Array:  []int{1, 2, 3},
 				Map:    nil,
 				ChildStruct: &childStruct{
@@ -103,22 +105,10 @@ func TestBuilder_Build(t *testing.T) {
 		},
 		{
 			name: "empty fields do not overwrite",
-			builder: fac.NewBuilder(func(i int, last interface{}) interface{} {
-				return testStruct{
-					String: "setByBlueprint",
-					Int:    1,
-					Float:  0.5,
-					Array:  []int{1, 2, 3},
-					Map:    map[string]bool{"a": true},
-					ChildStruct: &childStruct{
-						String: "child",
-						Int:    10,
-					},
-				}
-			}, testStruct{}),
+			builder: fac.NewBuilder(bluePrint, testStruct{}).EachParam(testStruct{}),
 			want: &testStruct{
 				String: "setByBlueprint",
-				Int:    1,
+				Int:    11,
 				Float:  0.5,
 				Array:  []int{1, 2, 3},
 				Map:    map[string]bool{"a": true},

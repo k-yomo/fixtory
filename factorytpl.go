@@ -125,21 +125,23 @@ func (ub *{{ $builder }}) Build() *{{ .Struct }} {
 func (ub *{{ $builder }}) Build2() (*{{ .Struct }}, *{{ .Struct }}) {
 	ub.t.Helper()
 
-	return ub.Build(), ub.Build()
+	list := ub.BuildList(2)
+	return list[0], list[1]
 }
 
 func (ub *{{ $builder }}) Build3() (*{{ .Struct }}, *{{ .Struct }}, *{{ .Struct }}) {
 	ub.t.Helper()
 
-	return ub.Build(), ub.Build(), ub.Build()
+	list := ub.BuildList(3)
+	return list[0], list[1], list[2]
 }
 
 func (ub *{{ $builder }}) BuildList(n int) []*{{ .Struct }} {
 	ub.t.Helper()
 
 	{{ $lowerStructName }}s := make([]*{{ .Struct }}, 0, n)
-	for i := 0; i < n; i++ {
-		{{ $lowerStructName }}s = append({{ $lowerStructName }}s, ub.Build())
+	for _, {{ $lowerStructName }} := range ub.builder.BuildList(n) {
+		{{ $lowerStructName }}s = append({{ $lowerStructName }}s, {{ $lowerStructName }}.(*{{ .Struct }}))
 	}
 	return {{ $lowerStructName }}s
 }

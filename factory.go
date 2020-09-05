@@ -58,6 +58,7 @@ func (b *Builder) ResetAfter() *Builder {
 }
 
 func (b *Builder) Build() interface{} {
+	b.index = 0
 	product := b.build()
 	if b.resetAfterBuild {
 		b.Factory.Reset()

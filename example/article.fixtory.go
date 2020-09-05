@@ -107,21 +107,23 @@ func (ub *authorBuilder) Build() *Author {
 func (ub *authorBuilder) Build2() (*Author, *Author) {
 	ub.t.Helper()
 
-	return ub.Build(), ub.Build()
+	list := ub.BuildList(2)
+	return list[0], list[1]
 }
 
 func (ub *authorBuilder) Build3() (*Author, *Author, *Author) {
 	ub.t.Helper()
 
-	return ub.Build(), ub.Build(), ub.Build()
+	list := ub.BuildList(3)
+	return list[0], list[1], list[2]
 }
 
 func (ub *authorBuilder) BuildList(n int) []*Author {
 	ub.t.Helper()
 
 	authors := make([]*Author, 0, n)
-	for i := 0; i < n; i++ {
-		authors = append(authors, ub.Build())
+	for _, author := range ub.builder.BuildList(n) {
+		authors = append(authors, author.(*Author))
 	}
 	return authors
 }
@@ -232,21 +234,23 @@ func (ub *articleBuilder) Build() *Article {
 func (ub *articleBuilder) Build2() (*Article, *Article) {
 	ub.t.Helper()
 
-	return ub.Build(), ub.Build()
+	list := ub.BuildList(2)
+	return list[0], list[1]
 }
 
 func (ub *articleBuilder) Build3() (*Article, *Article, *Article) {
 	ub.t.Helper()
 
-	return ub.Build(), ub.Build(), ub.Build()
+	list := ub.BuildList(3)
+	return list[0], list[1], list[2]
 }
 
 func (ub *articleBuilder) BuildList(n int) []*Article {
 	ub.t.Helper()
 
 	articles := make([]*Article, 0, n)
-	for i := 0; i < n; i++ {
-		articles = append(articles, ub.Build())
+	for _, article := range ub.builder.BuildList(n) {
+		articles = append(articles, article.(*Article))
 	}
 	return articles
 }
