@@ -13,7 +13,7 @@ By using Fixtory...
 - No more exhaustion to just prepare test data
 
 ## Installation
-```
+```sh
 $ go get github.com/k-yomo/fixtory/cmd/fixtory
 ```
 
@@ -34,7 +34,7 @@ Flags:
 Complete code is in [example](example).
 
 1. Add `go:generate` comment to generate factories
-```
+```go
 //go:generate fixtory -type=Author,Article -output=article.fixtory.go
 
 // Author represents article's author
@@ -57,12 +57,12 @@ type Article struct {
 ```
 
 2. Generate fixture factories
-```
+```sh
 $ go generate ./...
 ```
 
 3. Use factory to initialize fixtures
-```
+```go
 var authorBluePrint = func(i int, last Author) Author {
 	num := i + 1
 	return Author{
@@ -139,7 +139,7 @@ type TestArticleBluePrintFunc func(i int, last Article) Article
 To overwrite some fields, you can use traits.
 Traits are applied in the order of arguments to all fixtures.
 ※ Only non-zero value will be set.
-```
+```go
 //  Repeatedly used trait would be better to define as global variable.
 var articleTraitPublished = Article{
 	Status:             ArticleStatusOpen,
@@ -160,7 +160,7 @@ articles:= articleFactory.NewBuilder(
 When you want to overwrite a specific fixture in the list, use EachParam.
 Each Param overwrites the same index struct as parameter.
 ※ Only non-zero value will be set.
-```
+```go
 articleFactory := NewArticleFactory(t)
 articles := articleFactory.NewBuilder(nil, Article{Title: "test article"})
                 .EachParam(Article{AuthorID: 1}, Article{AuthorID: 2}, Article{AuthorID: 2})
@@ -170,7 +170,7 @@ articles := articleFactory.NewBuilder(nil, Article{Title: "test article"})
 ### 4. Zero
 Since there is no way to distinguish default zero value or intentionally set zero in params,
 you can overwrite fields with zero value like below, and it will be applied at the last minute.
-```
+```go
 articleFactory := NewArticleFactory(t)
 // AuthorID will be overwritten with zero value.
 articles := articleFactory.NewBuilder(articleBluePrint, Article{AuthorID: author1.ID}).
