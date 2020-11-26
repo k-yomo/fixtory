@@ -5,84 +5,94 @@ import (
 	"testing"
 )
 
-type BluePrintFunc func(i int, last interface{}) interface{}
+type BluePrintFunc[T any] func(i int, last T) T
 
-type Factory struct {
+type Factory[T any] struct {
 	t           *testing.T
 	productType reflect.Type
 	// struct
-	last interface{}
+	last T
 	// index is the next struct index (which is equal to already built struct count in this factory)
 	index int
 	// v is a pointer to struct
-	OnBuild func(t *testing.T, v interface{})
+	OnBuild func(t *testing.T, v *T)
 }
 
-type Builder struct {
-	*Factory
+type Builder[T any] struct {
+	factory *Factory[T]
 	// index is the next struct index in this builder
 	index           int
-	bluePrint       func(i int, last interface{}) interface{}
-	traits          []interface{}
-	eachParam       []interface{}
+	bluePrint       func(i int, last T) T
+	traits          []T
+	eachParam       []T
 	zeroFields      []string
 	resetAfterBuild bool
 }
 
-func NewFactory(t *testing.T, v interface{}) *Factory {
-	return &Factory{t: t, productType: reflect.PtrTo(reflect.TypeOf(v)), index: 0, last: v}
+func NewFactory[T any](t *testing.T, v T) *Factory[T] {
+	return &Factory[T]{t: t, productType: reflect.PtrTo(reflect.TypeOf(v)), index: 0, last: v}
 }
 
-func (f *Factory) NewBuilder(bluePrint BluePrintFunc, traits ...interface{}) *Builder {
-	return &Builder{Factory: f, bluePrint: bluePrint, traits: traits}
+func (f *Factory[T]) NewBuilder(bluePrint BluePrintFunc[T], traits ...T) *Builder[T] {
+	return &Builder[T]{factory: f, bluePrint: bluePrint, traits: traits}
 }
 
-func (f *Factory) Reset() {
-	f.last = reflect.New(f.productType.Elem()).Elem().Interface()
+func (f *Factory[T]) Reset() {
+	f.last = reflect.New(f.productType.Elem()).Elem().Interface().(T)
 	f.index = 0
 }
 
-func (b *Builder) EachParam(params ...interface{}) *Builder {
+func (b *Builder[T]) EachParam(params ...T) *Builder[T] {
 	b.eachParam = params
 	return b
 }
 
-func (b *Builder) Zero(fields ...string) *Builder {
+func (b *Builder[T]) Zero(fields ...string) *Builder[T] {
 	b.zeroFields = fields
 	return b
 }
 
-func (b *Builder) ResetAfter() *Builder {
+func (b *Builder[T]) ResetAfter() *Builder[T] {
 	b.resetAfterBuild = true
 	return b
 }
 
-func (b *Builder) Build() interface{} {
+func (b *Builder[T]) Build() *T {
 	b.index = 0
 	product := b.build()
 	if b.resetAfterBuild {
-		b.Factory.Reset()
+		b.factory.Reset()
 	}
 	return product
 }
 
-func (b *Builder) BuildList(n int) []interface{} {
+func (b *Builder[T]) Build2() (*T, *T) {
+	list := b.BuildList(2)
+	return list[0], list[1]
+}
+
+func (b *Builder[T]) Build3() (*T, *T, *T) {
+	list := b.BuildList(3)
+	return list[0], list[1], list[2]
+}
+
+func (b *Builder[T]) BuildList(n int) []*T {
 	b.index = 0
-	products := make([]interface{}, 0, n)
+	products := make([]*T, 0, n)
 	for i := 0; i < n; i++ {
 		products = append(products, b.build())
 	}
 	if b.resetAfterBuild {
-		b.Factory.Reset()
+		b.factory.Reset()
 	}
 	return products
 }
 
-func (b *Builder) build() interface{} {
-	product := reflect.New(b.productType.Elem()).Interface()
+func (b *Builder[T]) build() *T {
+	product := reflect.New(b.factory.productType.Elem()).Interface().(*T)
 
 	if b.bluePrint != nil {
-		MapNotZeroFields(b.bluePrint(b.Factory.index, b.last), product)
+		MapNotZeroFields(b.bluePrint(b.factory.index, b.factory.last), product)
 	}
 	for _, trait := range b.traits {
 		MapNotZeroFields(trait, product)
@@ -90,17 +100,17 @@ func (b *Builder) build() interface{} {
 	if len(b.eachParam) > b.index {
 		MapNotZeroFields(b.eachParam[b.index], product)
 	}
-	for _, f := range b.zeroFields {
-		uf := reflect.ValueOf(product).Elem().FieldByName(f)
-		uf.Set(reflect.Zero(uf.Type()))
+	for _, zf := range b.zeroFields {
+		f := reflect.ValueOf(product).Elem().FieldByName(zf)
+		f.Set(reflect.Zero(f.Type()))
 	}
 
-	b.last = reflect.ValueOf(product).Elem().Interface()
+	b.factory.last = reflect.ValueOf(product).Elem().Interface().(T)
 	b.index++
-	b.Factory.index++
+	b.factory.index++
 
-	if b.OnBuild != nil {
-		b.OnBuild(b.t, product)
+	if b.factory.OnBuild != nil {
+		b.factory.OnBuild(b.factory.t, product)
 	}
 	return product
 }

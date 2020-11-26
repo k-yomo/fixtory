@@ -2,6 +2,7 @@ package example
 
 import (
 	"fmt"
+	"github.com/k-yomo/fixtory"
 	"reflect"
 	"testing"
 	"time"
@@ -44,14 +45,13 @@ var articleTraitPublished = Article{
 }
 
 func TestArticleList_SelectPublished(t *testing.T) {
-	articleFactory := NewArticleFactory(t)
+	articleFactory := fixtory.NewFactory(t, Article{})
 	// if you want to persist articles, set OnBuild func here
-	articleFactory.OnBuild(func(t *testing.T, article *Article) { fmt.Println("Insert to db here") })
+	articleFactory.OnBuild = func(t *testing.T, article *Article) { fmt.Println("Insert to db here") }
 
 	// creates 3 different articles
 	waitReview, publishedScheduled, published := articleFactory.NewBuilder(articleBluePrint).
 		EachParam(articleTraitDraft, articleTraitPublishScheduled, articleTraitPublished).
-		Zero(ArticleLikeCountField).
 		ResetAfter().
 		Build3()
 
@@ -76,8 +76,8 @@ func TestArticleList_SelectPublished(t *testing.T) {
 }
 
 func TestArticleList_SelectAuthoredBy(t *testing.T) {
-	authorFactory := NewAuthorFactory(t)
-	articleFactory := NewArticleFactory(t)
+	authorFactory := fixtory.NewFactory(t, Author{})
+	articleFactory := fixtory.NewFactory(t, Article{})
 
 	author1, author2 := authorFactory.NewBuilder(authorBluePrint).Build2()
 	articlesAuthoredBy1 := articleFactory.NewBuilder(articleBluePrint, Article{AuthorID: author1.ID}).BuildList(4)
