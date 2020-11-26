@@ -33,13 +33,13 @@ func NewFactory(t *testing.T, v interface{}) *Factory {
 	return &Factory{t: t, productType: reflect.PtrTo(reflect.TypeOf(v)), index: 0, last: v}
 }
 
-func (uf *Factory) NewBuilder(bluePrint BluePrintFunc, traits ...interface{}) *Builder {
-	return &Builder{Factory: uf, bluePrint: bluePrint, traits: traits}
+func (f *Factory) NewBuilder(bluePrint BluePrintFunc, traits ...interface{}) *Builder {
+	return &Builder{Factory: f, bluePrint: bluePrint, traits: traits}
 }
 
-func (uf *Factory) Reset() {
-	uf.last = reflect.New(uf.productType.Elem()).Elem().Interface()
-	uf.index = 0
+func (f *Factory) Reset() {
+	f.last = reflect.New(f.productType.Elem()).Elem().Interface()
+	f.index = 0
 }
 
 func (b *Builder) EachParam(params ...interface{}) *Builder {
