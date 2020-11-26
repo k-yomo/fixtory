@@ -1,4 +1,4 @@
-package fixtory
+package reflectutil
 
 import (
 	"fmt"
