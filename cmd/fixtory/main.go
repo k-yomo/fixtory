@@ -14,8 +14,9 @@ import (
 	"strings"
 )
 
+var version string
+
 var (
-	version   string
 	typeNames = flag.String("type", "", "comma-separated list of type names; must be set")
 	output    = flag.String("output", "", "output file name; default srcdir/fixtory_gen.go")
 	pkgName   = flag.String("package", "", "package name; default same package as the type")

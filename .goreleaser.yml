@@ -11,7 +11,7 @@ builds:
       - linux
       - windows
     ldflags:
-      - -s -w -X github.com/k-yomo/fixtory/cmd/fixtory.version={{.Version}}
+      - -s -w -X main.version={{.Version}}
 archives:
   - replacements:
       darwin: Darwin
