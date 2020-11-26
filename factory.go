@@ -1,7 +1,6 @@
 package fixtory
 
 import (
-	"github.com/k-yomo/fixtory/pkg/reflectutil"
 	"reflect"
 	"testing"
 )
@@ -83,13 +82,13 @@ func (b *Builder) build() interface{} {
 	product := reflect.New(b.productType.Elem()).Interface()
 
 	if b.bluePrint != nil {
-		reflectutil.MapNotZeroFields(b.bluePrint(b.Factory.index, b.last), product)
+		MapNotZeroFields(b.bluePrint(b.Factory.index, b.last), product)
 	}
 	for _, trait := range b.traits {
-		reflectutil.MapNotZeroFields(trait, product)
+		MapNotZeroFields(trait, product)
 	}
 	if len(b.eachParam) > b.index {
-		reflectutil.MapNotZeroFields(b.eachParam[b.index], product)
+		MapNotZeroFields(b.eachParam[b.index], product)
 	}
 	for _, f := range b.zeroFields {
 		uf := reflect.ValueOf(product).Elem().FieldByName(f)

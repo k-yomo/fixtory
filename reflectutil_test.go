@@ -1,4 +1,4 @@
-package reflectutil
+package fixtory
 
 import (
 	"reflect"
