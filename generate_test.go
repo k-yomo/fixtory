@@ -11,7 +11,7 @@ func TestGenerate(t *testing.T) {
 		targetDir string
 		types     []string
 		pkgName   string
-		newWriter func() (io.Writer, func() error, error)
+		newWriter func() (io.Writer, func(), error)
 	}
 	tests := []struct {
 		name    string
@@ -23,9 +23,9 @@ func TestGenerate(t *testing.T) {
 			args: args{
 				targetDir: "example",
 				types:     []string{"Article", "Author"},
-				newWriter: func() (io.Writer, func() error, error) {
+				newWriter: func() (io.Writer, func(), error) {
 					var b bytes.Buffer
-					return &b, func() error { return nil }, nil
+					return &b, func() { }, nil
 				},
 			},
 		},
