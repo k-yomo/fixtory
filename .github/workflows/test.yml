@@ -5,31 +5,43 @@ env:
   GO111MODULE: "on"
 
 jobs:
-  build:
-    name: Build, Test
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Set up Go 1.15
-        uses: actions/setup-go@v2
+      - name: Lint
+        uses: golangci/golangci-lint-action@v2
         with:
-          go-version: 1.15
+          version: v1.29
+
+  test:
+    name: Matrix Test
+    needs: lint
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        go-version:
+          - '1.13.x'
+          - '1.15.x'
+          - '1.16.x'
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v2.1.3
+        with:
+          go-version:  ${{ matrix.go-version }}
         id: go
 
-      - name: Restore Cache
-        uses: actions/cache@v2
-        with:
-          path: ~/go/pkg/mod
-          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-          restore-keys: |
-            ${{ runner.os }}-go-
+      - name: Check out code into the Go module directory
+        uses: actions/checkout@v2.3.4
 
-      - name: Download Modules
-        if: steps.cache.outputs.cache-hit != 'true'
-        run: go mod download
+      - name: Get dependencies
+        run: |
+          go mod download
 
       - name: Test
         run: go test -v -race -coverprofile=coverage.out ./...
