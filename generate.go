@@ -12,7 +12,7 @@ import (
 	"text/template"
 )
 
-func Generate(targetDir string, types []string, pkgName string, newWriter func() (writer io.Writer, close func() error, err error)) error {
+func Generate(targetDir string, types []string, pkgName string, newWriter func() (writer io.Writer, close func(), err error)) error {
 	targetTypeMap := map[string]bool{}
 	for _, t := range types {
 		targetTypeMap[t] = true
@@ -93,6 +93,9 @@ func Generate(targetDir string, types []string, pkgName string, newWriter func()
 		}
 
 		writer, closeWriter, err := newWriter()
+		if err != nil {
+			return xerrors.Errorf("initialize writer: %w", err)
+		}
 		defer closeWriter()
 
 		if _, err := writer.Write(str); err != nil {
