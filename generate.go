@@ -3,13 +3,14 @@ package fixtory
 import (
 	"bytes"
 	"fmt"
-	"github.com/k-yomo/fixtory/pkg/astutil"
 	"go/ast"
 	"go/format"
-	"golang.org/x/xerrors"
 	"io"
 	"strings"
 	"text/template"
+
+	"github.com/k-yomo/fixtory/pkg/astutil"
+	"golang.org/x/xerrors"
 )
 
 func Generate(targetDir string, types []string, pkgName string, newWriter func() (writer io.Writer, close func(), err error)) error {
@@ -26,8 +27,16 @@ func Generate(targetDir string, types []string, pkgName string, newWriter func()
 		if len(targetTypeMap) == 0 {
 			break
 		}
+		walkerPkgName := walker.Pkg.Name
+		allStructSpecs := walker.AllStructSpecs()
+		for _, spec := range allStructSpecs {
+			if strings.ToLower(spec.Name.Name) == walkerPkgName {
+				walkerPkgName = "_" + walkerPkgName
+				break
+			}
+		}
 		body := new(bytes.Buffer)
-		for _, spec := range walker.AllStructSpecs() {
+		for _, spec := range allStructSpecs {
 			if len(targetTypeMap) == 0 {
 				break
 			}
@@ -44,15 +53,15 @@ func Generate(targetDir string, types []string, pkgName string, newWriter func()
 			tpl := template.Must(template.New("factory").Funcs(template.FuncMap{"ToLower": strings.ToLower}).Parse(factoryTpl))
 			st := spec.Name.Name
 			if pkgName != "" {
-				st = fmt.Sprintf("%s.%s", walker.Pkg.Name, st)
+				st = fmt.Sprintf("%s.%s", walkerPkgName, st)
 			}
 			params := struct {
 				StructName string
-				Struct string
+				Struct     string
 				FieldNames []string
 			}{
 				StructName: spec.Name.Name,
-				Struct: st,
+				Struct:     st,
 				FieldNames: fieldNames,
 			}
 			if err := tpl.Execute(body, params); err != nil {
@@ -65,9 +74,14 @@ func Generate(targetDir string, types []string, pkgName string, newWriter func()
 
 		var importPackages []string
 		if pkgName == "" {
-			pkgName = walker.Pkg.Name
+			pkgName = walkerPkgName
 		} else {
-			importPackages = append(importPackages, walker.PkgPath)
+			importPackage := fmt.Sprintf(`"%s"`, walker.PkgPath)
+			if walkerPkgName != walker.Pkg.Name {
+				importPackage = fmt.Sprintf(`%s "%s"`, walkerPkgName, walker.PkgPath)
+			}
+
+			importPackages = append(importPackages, importPackage)
 		}
 
 		out := new(bytes.Buffer)
