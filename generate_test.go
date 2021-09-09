@@ -9,6 +9,7 @@ import (
 func TestGenerate(t *testing.T) {
 	type args struct {
 		targetDir string
+		outputDir string
 		types     []string
 		pkgName   string
 		newWriter func() (io.Writer, func(), error)
@@ -22,17 +23,18 @@ func TestGenerate(t *testing.T) {
 			name: "generate factory for Author, Article in example directory",
 			args: args{
 				targetDir: "example",
+				outputDir: "example",
 				types:     []string{"Article", "Author"},
 				newWriter: func() (io.Writer, func(), error) {
 					var b bytes.Buffer
-					return &b, func() { }, nil
+					return &b, func() {}, nil
 				},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if err := Generate(tt.args.targetDir, tt.args.types, tt.args.pkgName, tt.args.newWriter); (err != nil) != tt.wantErr {
+			if err := Generate(tt.args.targetDir, tt.args.outputDir, tt.args.types, tt.args.pkgName, tt.args.newWriter); (err != nil) != tt.wantErr {
 				t.Errorf("Generate() error = %v, wantErr %v", err, tt.wantErr)
 			}
 		})
