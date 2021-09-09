@@ -6,11 +6,12 @@ const fixtoryFileTpl = `
 package {{ .PackageName }}
 
 import (
+	"testing"
+
+	"github.com/k-yomo/fixtory"
 {{- range .ImportPackages }}
 	{{ . }}
 {{- end}}
-	"github.com/k-yomo/fixtory"
-	"testing"
 )
 
 {{ .Body }}

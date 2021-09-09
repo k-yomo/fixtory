@@ -3,13 +3,14 @@ package fixtory
 import (
 	"bytes"
 	"fmt"
-	"github.com/k-yomo/fixtory/pkg/astutil"
 	"go/ast"
 	"go/format"
-	"golang.org/x/xerrors"
 	"io"
 	"strings"
 	"text/template"
+
+	"github.com/k-yomo/fixtory/pkg/astutil"
+	"golang.org/x/xerrors"
 )
 
 func Generate(targetDir string, outputDir string, types []string, pkgName string, newWriter func() (writer io.Writer, close func(), err error)) error {
@@ -60,11 +61,11 @@ func Generate(targetDir string, outputDir string, types []string, pkgName string
 			}
 			params := struct {
 				StructName string
-				Struct string
+				Struct     string
 				FieldNames []string
 			}{
 				StructName: spec.Name.Name,
-				Struct: st,
+				Struct:     st,
 				FieldNames: fieldNames,
 			}
 			if err := tpl.Execute(body, params); err != nil {

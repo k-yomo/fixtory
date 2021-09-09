@@ -1,9 +1,10 @@
 package fixtory
 
 import (
-	"github.com/google/go-cmp/cmp"
 	"reflect"
 	"testing"
+
+	"github.com/google/go-cmp/cmp"
 )
 
 type testStruct struct {
@@ -89,7 +90,7 @@ func TestBuilder_Build(t *testing.T) {
 			want:    &testStruct{Int: 5},
 		},
 		{
-			name: "struct is overwritten by traits, zero, each param",
+			name:    "struct is overwritten by traits, zero, each param",
 			builder: fac.NewBuilder(bluePrint, testStruct{String: "setByTrait1", Int: 10}, testStruct{String: "setByTrait2", Array: []int{1, 2, 3}}).Zero("Map").EachParam(testStruct{Float: 10.9}),
 			want: &testStruct{
 				String: "setByTrait2",
@@ -104,7 +105,7 @@ func TestBuilder_Build(t *testing.T) {
 			},
 		},
 		{
-			name: "empty fields do not overwrite",
+			name:    "empty fields do not overwrite",
 			builder: fac.NewBuilder(bluePrint, testStruct{}).EachParam(testStruct{}),
 			want: &testStruct{
 				String: "setByBlueprint",
