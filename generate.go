@@ -3,28 +3,41 @@ package fixtory
 import (
 	"bytes"
 	"fmt"
-	"github.com/k-yomo/fixtory/pkg/astutil"
 	"go/ast"
 	"go/format"
-	"golang.org/x/xerrors"
 	"io"
 	"strings"
 	"text/template"
+
+	"github.com/k-yomo/fixtory/pkg/astutil"
+	"golang.org/x/xerrors"
 )
 
-func Generate(targetDir string, types []string, pkgName string, newWriter func() (writer io.Writer, close func(), err error)) error {
+func Generate(targetDir string, outputDir string, types []string, pkgName string, newWriter func() (writer io.Writer, close func(), err error)) error {
 	targetTypeMap := map[string]bool{}
 	for _, t := range types {
 		targetTypeMap[t] = true
+	}
+	if len(targetTypeMap) == 0 {
+		return nil
 	}
 
 	walkerMap, err := astutil.DirToAstWalker(targetDir)
 	if err != nil {
 		return err
 	}
+	if len(walkerMap) == 0 {
+		return nil
+	}
 	for _, walker := range walkerMap {
-		if len(targetTypeMap) == 0 {
-			break
+		if pkgName == "" {
+			pkgName = walker.Pkg.Name
+		}
+
+		importPkgName := walker.Pkg.Name
+		shouldImportPkg := outputDir != targetDir
+		if shouldImportPkg && pkgName == walker.Pkg.Name {
+			importPkgName = fmt.Sprintf("_%s", importPkgName)
 		}
 		body := new(bytes.Buffer)
 		for _, spec := range walker.AllStructSpecs() {
@@ -43,16 +56,16 @@ func Generate(targetDir string, types []string, pkgName string, newWriter func()
 			}
 			tpl := template.Must(template.New("factory").Funcs(template.FuncMap{"ToLower": strings.ToLower}).Parse(factoryTpl))
 			st := spec.Name.Name
-			if pkgName != "" {
-				st = fmt.Sprintf("%s.%s", walker.Pkg.Name, st)
+			if shouldImportPkg {
+				st = fmt.Sprintf("%s.%s", importPkgName, st)
 			}
 			params := struct {
 				StructName string
-				Struct string
+				Struct     string
 				FieldNames []string
 			}{
 				StructName: spec.Name.Name,
-				Struct: st,
+				Struct:     st,
 				FieldNames: fieldNames,
 			}
 			if err := tpl.Execute(body, params); err != nil {
@@ -64,10 +77,12 @@ func Generate(targetDir string, types []string, pkgName string, newWriter func()
 		}
 
 		var importPackages []string
-		if pkgName == "" {
-			pkgName = walker.Pkg.Name
-		} else {
-			importPackages = append(importPackages, walker.PkgPath)
+		if shouldImportPkg {
+			if pkgName == walker.Pkg.Name {
+				importPackages = append(importPackages, fmt.Sprintf(`%s "%s"`, importPkgName, walker.PkgPath))
+			} else {
+				importPackages = append(importPackages, fmt.Sprintf(`"%s"`, walker.PkgPath))
+			}
 		}
 
 		out := new(bytes.Buffer)

@@ -3,8 +3,9 @@
 package example
 
 import (
-	"github.com/k-yomo/fixtory"
 	"testing"
+
+	"github.com/k-yomo/fixtory"
 )
 
 type AuthorFactory interface {

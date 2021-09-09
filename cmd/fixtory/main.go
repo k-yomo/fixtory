@@ -53,9 +53,9 @@ func main() {
 		outputPath = filepath.Join(targetDir, "fixtory_gen.go")
 	}
 
+	outputDir, _ := path.Split(outputPath)
 	newWriter := func() (io.Writer, func(), error) {
-		dir, _ := path.Split(outputPath)
-		if err := os.MkdirAll(dir, 0755); err != nil {
+		if err := os.MkdirAll(outputDir, 0755); err != nil {
 			return nil, nil, xerrors.Errorf("create directory: %w", err)
 		}
 		writer, err := os.Create(outputPath)
@@ -64,7 +64,7 @@ func main() {
 		}
 		return writer, func() { _ = writer.Close() }, nil
 	}
-	if err := fixtory.Generate(targetDir, types, *pkgName, newWriter); err != nil {
+	if err := fixtory.Generate(targetDir, filepath.Dir(outputDir), types, *pkgName, newWriter); err != nil {
 		color.Red("%+v", err)
 		os.Exit(1)
 	}
