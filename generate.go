@@ -10,7 +10,6 @@ import (
 	"text/template"
 
 	"github.com/k-yomo/fixtory/pkg/astutil"
-	"golang.org/x/xerrors"
 )
 
 func Generate(targetDir string, outputDir string, types []string, pkgName string, newWriter func() (writer io.Writer, close func(), err error)) error {
@@ -69,7 +68,7 @@ func Generate(targetDir string, outputDir string, types []string, pkgName string
 				FieldNames: fieldNames,
 			}
 			if err := tpl.Execute(body, params); err != nil {
-				return xerrors.Errorf("execute factory template: %w", err)
+				return fmt.Errorf("execute factory template: %w", err)
 			}
 		}
 		if body.Len() == 0 {
@@ -99,22 +98,22 @@ func Generate(targetDir string, outputDir string, types []string, pkgName string
 		}
 		err = template.Must(template.New("fixtoryFile").Parse(fixtoryFileTpl)).Execute(out, params)
 		if err != nil {
-			return xerrors.Errorf("execute fixtoryFile template: %w", err)
+			return fmt.Errorf("execute fixtoryFile template: %w", err)
 		}
 
 		str, err := format.Source(out.Bytes())
 		if err != nil {
-			return xerrors.Errorf("format.Source: %w", err)
+			return fmt.Errorf("format.Source: %w", err)
 		}
 
 		writer, closeWriter, err := newWriter()
 		if err != nil {
-			return xerrors.Errorf("initialize writer: %w", err)
+			return fmt.Errorf("initialize writer: %w", err)
 		}
 		defer closeWriter()
 
 		if _, err := writer.Write(str); err != nil {
-			return xerrors.Errorf("write fixtory file: %w", err)
+			return fmt.Errorf("write fixtory file: %w", err)
 		}
 	}
 
