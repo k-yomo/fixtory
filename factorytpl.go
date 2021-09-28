@@ -140,10 +140,10 @@ func (ub *{{ $builder }}) Build3() (*{{ .Struct }}, *{{ .Struct }}, *{{ .Struct 
 func (ub *{{ $builder }}) BuildList(n int) []*{{ .Struct }} {
 	ub.t.Helper()
 
-	{{ $lowerStructName }}s := make([]*{{ .Struct }}, 0, n)
-	for _, {{ $lowerStructName }} := range ub.builder.BuildList(n) {
-		{{ $lowerStructName }}s = append({{ $lowerStructName }}s, {{ $lowerStructName }}.(*{{ .Struct }}))
+	list := make([]*{{ .Struct }}, 0, n)
+	for _, v := range ub.builder.BuildList(n) {
+		list = append(list, v.(*{{ .Struct }}))
 	}
-	return {{ $lowerStructName }}s
+	return list 
 }
 `
