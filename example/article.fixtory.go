@@ -122,11 +122,11 @@ func (ub *authorBuilder) Build3() (*Author, *Author, *Author) {
 func (ub *authorBuilder) BuildList(n int) []*Author {
 	ub.t.Helper()
 
-	authors := make([]*Author, 0, n)
-	for _, author := range ub.builder.BuildList(n) {
-		authors = append(authors, author.(*Author))
+	list := make([]*Author, 0, n)
+	for _, v := range ub.builder.BuildList(n) {
+		list = append(list, v.(*Author))
 	}
-	return authors
+	return list
 }
 
 type ArticleFactory interface {
@@ -249,9 +249,9 @@ func (ub *articleBuilder) Build3() (*Article, *Article, *Article) {
 func (ub *articleBuilder) BuildList(n int) []*Article {
 	ub.t.Helper()
 
-	articles := make([]*Article, 0, n)
-	for _, article := range ub.builder.BuildList(n) {
-		articles = append(articles, article.(*Article))
+	list := make([]*Article, 0, n)
+	for _, v := range ub.builder.BuildList(n) {
+		list = append(list, v.(*Article))
 	}
-	return articles
+	return list
 }
