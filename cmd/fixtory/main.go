@@ -3,15 +3,16 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/fatih/color"
-	"github.com/k-yomo/fixtory"
-	"golang.org/x/xerrors"
 	"io"
 	"log"
 	"os"
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/fatih/color"
+	"github.com/k-yomo/fixtory"
+	"golang.org/x/xerrors"
 )
 
 var version string
@@ -55,9 +56,12 @@ func main() {
 
 	outputDir, _ := path.Split(outputPath)
 	newWriter := func() (io.Writer, func(), error) {
-		if err := os.MkdirAll(outputDir, 0755); err != nil {
-			return nil, nil, xerrors.Errorf("create directory: %w", err)
+		if outputDir != "" {
+			if err := os.MkdirAll(outputDir, 0755); err != nil {
+				return nil, nil, xerrors.Errorf("create directory: %w", err)
+			}
 		}
+
 		writer, err := os.Create(outputPath)
 		if err != nil {
 			return nil, nil, xerrors.Errorf("create output file: %w", err)
