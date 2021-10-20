@@ -12,7 +12,6 @@ import (
 
 	"github.com/fatih/color"
 	"github.com/k-yomo/fixtory"
-	"golang.org/x/xerrors"
 )
 
 var version string
@@ -58,13 +57,13 @@ func main() {
 	newWriter := func() (io.Writer, func(), error) {
 		if outputDir != "" {
 			if err := os.MkdirAll(outputDir, 0755); err != nil {
-				return nil, nil, xerrors.Errorf("create directory: %w", err)
+				return nil, nil, fmt.Errorf("create directory: %w", err)
 			}
 		}
 
 		writer, err := os.Create(outputPath)
 		if err != nil {
-			return nil, nil, xerrors.Errorf("create output file: %w", err)
+			return nil, nil, fmt.Errorf("create output file: %w", err)
 		}
 		return writer, func() { _ = writer.Close() }, nil
 	}

@@ -1,6 +1,7 @@
 package astutil
 
 import (
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -12,7 +13,6 @@ import (
 	"strings"
 
 	"golang.org/x/mod/modfile"
-	"golang.org/x/xerrors"
 )
 
 // AstPkgWalker represents ast package walker
@@ -69,7 +69,7 @@ func DirToAstWalker(targetDir string) (map[string]AstPkgWalker, error) {
 		parser.ParseComments,
 	)
 	if err != nil {
-		return nil, xerrors.Errorf("parser.ParseDir: %w", err)
+		return nil, fmt.Errorf("parser.ParseDir: %w", err)
 	}
 
 	m := make(map[string]AstPkgWalker, len(pkgMap))
@@ -94,7 +94,7 @@ func ParseAstPkg(fset *token.FileSet, pkg *ast.Package) (AstPkgWalker, error) {
 		var err error
 		dir, err = os.Getwd()
 		if err != nil {
-			return AstPkgWalker{}, xerrors.Errorf("get current directory: %w", err)
+			return AstPkgWalker{}, fmt.Errorf("get current directory: %w", err)
 		}
 	}
 	pkgPath, err := packageNameOfDir(dir)
@@ -184,7 +184,7 @@ func parsePackageImport(srcDir string) (string, error) {
 	// fall back to GOPATH mode
 	goPaths := os.Getenv("GOPATH")
 	if goPaths == "" {
-		return "", xerrors.New("GOPATH is not set")
+		return "", errors.New("GOPATH is not set")
 	}
 	goPathList := strings.Split(goPaths, string(os.PathListSeparator))
 	for _, goPath := range goPathList {
@@ -193,5 +193,5 @@ func parsePackageImport(srcDir string) (string, error) {
 			return filepath.ToSlash(strings.TrimPrefix(srcDir, sourceRoot)), nil
 		}
 	}
-	return "", xerrors.New("Source directory is outside GOPATH")
+	return "", errors.New("source directory is outside GOPATH")
 }
