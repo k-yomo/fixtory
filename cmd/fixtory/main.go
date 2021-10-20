@@ -55,9 +55,12 @@ func main() {
 
 	outputDir, _ := path.Split(outputPath)
 	newWriter := func() (io.Writer, func(), error) {
-		if err := os.MkdirAll(outputDir, 0755); err != nil {
-			return nil, nil, fmt.Errorf("create directory: %w", err)
+		if outputDir != "" {
+			if err := os.MkdirAll(outputDir, 0755); err != nil {
+				return nil, nil, fmt.Errorf("create directory: %w", err)
+			}
 		}
+
 		writer, err := os.Create(outputPath)
 		if err != nil {
 			return nil, nil, fmt.Errorf("create output file: %w", err)
