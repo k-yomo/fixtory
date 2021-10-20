@@ -5,13 +5,14 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"golang.org/x/mod/modfile"
-	"golang.org/x/xerrors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+
+	"golang.org/x/mod/modfile"
+	"golang.org/x/xerrors"
 )
 
 // AstPkgWalker represents ast package walker
