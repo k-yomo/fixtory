@@ -12,9 +12,9 @@ By using Fixtory...
 - No more error handling when building fixture
 - No more exhaustion to just prepare test data
 
-## ✨V2 is coming soon (when Generics are available)
-Using coming generic, fixtory won't require `go generate` anymore and will be more handy!!
-If you are insterested in V2, Please see either of following.
+## Generics version is coming soon (when Generics are available)
+Using coming Generics, fixtory won't require `go generate` anymore and will be more handy!!
+For more detail, please see either of following.
 - [generics branch](https://github.com/k-yomo/fixtory/tree/generics)
 - [go2go playground](https://go2goplay.golang.org/p/RZ81S0i8CMh)
 
