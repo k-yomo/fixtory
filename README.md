@@ -12,7 +12,7 @@ By using Fixtory...
 - No more error handling when building fixture
 - No more exhaustion to just prepare test data
 
-## Generics version is coming soon (when Generics are available)
+## ✨Generics version is coming soon (when Generics are available in Go)
 Using coming Generics, fixtory won't require `go generate` anymore and will be more handy!!
 For more detail, please see either of following.
 - [generics branch](https://github.com/k-yomo/fixtory/tree/generics)
