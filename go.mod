@@ -1,4 +1,4 @@
-module github.com/k-yomo/fixtory
+module github.com/k-yomo/fixtory/v2
 
 go 1.18
 

@@ -20,7 +20,7 @@ For more detail, please see either of following.
 
 ## Installation
 ```sh
-$ go get github.com/k-yomo/fixtory/cmd/fixtory
+$ go get github.com/k-yomo/fixtory/cmd/fixtory/v2
 ```
 
 ## Usage

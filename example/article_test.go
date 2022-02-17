@@ -2,10 +2,11 @@ package example
 
 import (
 	"fmt"
-	"github.com/k-yomo/fixtory"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/k-yomo/fixtory/v2"
 )
 
 var authorBluePrint = func(i int, last Author) Author {
