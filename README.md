@@ -4,7 +4,7 @@
 [![codecov](https://codecov.io/gh/k-yomo/fixtory/branch/master/graph/badge.svg)](https://codecov.io/gh/k-yomo/fixtory)
 [![Go Report Card](https://goreportcard.com/badge/github.com/k-yomo/fixtory)](https://goreportcard.com/report/github.com/k-yomo/fixtory)
 
-Fixtory is a test fixture factory generator which generates type-safe, DRY, flexible fixture factory.
+Fixtory is a test fixture factory which initializes type-safe, DRY, flexible fixtures with the power of Generics.
 
 By using Fixtory...
 - No more redundant repeated field value setting
@@ -12,63 +12,34 @@ By using Fixtory...
 - No more error handling when building fixture
 - No more exhaustion to just prepare test data
 
-## ✨Generics version is coming soon (when Generics are available in Go)
-Using coming Generics, fixtory won't require `go generate` anymore and will be more handy!!
-For more detail, please see either of following.
-- [generics branch](https://github.com/k-yomo/fixtory/tree/generics)
-- [go2go playground](https://go2goplay.golang.org/p/RZ81S0i8CMh)
-
 ## Installation
 ```sh
-$ go get github.com/k-yomo/fixtory/cmd/fixtory
-```
-
-## Usage
-```
-Usage of fixtory:
-        fixtory [flags] -type T [directory]
-Flags:
-  -output string
-        output file name; default srcdir/fixtory_gen.go
-  -package string
-        package name; default same package as the type
-  -type string
-        comma-separated list of type names; must be set
+$ go get github.com/k-yomo/fixtory/cmd/fixtory/v2
 ```
 
 ## Getting started
 Complete code is in [example](example).
 
-1. Add `go:generate` comment to generate factories
+Use factory to initialize fixtures
 ```go
-//go:generate fixtory -type=Author,Article -output=article.fixtory.go
-
 // Author represents article's author
 type Author struct {
-	ID   int
-	Name string
+    ID   int
+    Name string
 }
 
 // Article represents article
 type Article struct {
-	ID                 int
-	Title              string
-	Body               string
-	AuthorID           int
-	PublishScheduledAt time.Time
-	PublishedAt        time.Time
-	Status             ArticleStatus
-	LikeCount          int
+    ID                 int
+    Title              string
+    Body               string
+    AuthorID           int
+    PublishScheduledAt time.Time
+    PublishedAt        time.Time
+    Status             ArticleStatus
+    LikeCount          int
 }
-```
 
-2. Generate fixture factories
-```sh
-$ go generate ./...
-```
-
-3. Use factory to initialize fixtures
-```go
 var authorBluePrint = func(i int, last Author) Author {
 	num := i + 1
 	return Author{
@@ -89,43 +60,44 @@ var articleBluePrint = func(i int, last Article) Article {
 	}
 }
 
+
 func TestArticleList_SelectAuthoredBy(t *testing.T) {
-	authorFactory := NewAuthorFactory(t)
-	articleFactory := NewArticleFactory(t)
+    authorFactory := fixtory.NewFactory(t, Author{})
+    articleFactory := fixtory.NewFactory(t, Article{})
 
-	author1, author2 := authorFactory.NewBuilder(authorBluePrint).Build2()
-	articlesAuthoredBy1 := articleFactory.NewBuilder(articleBluePrint, Article{AuthorID: author1.ID}).BuildList(4)
-	articleAuthoredBy2 := articleFactory.NewBuilder(articleBluePrint, Article{AuthorID: author2.ID}).Build()
+    author1, author2 := authorFactory.NewBuilder(authorBluePrint).Build2()
+    articlesAuthoredBy1 := articleFactory.NewBuilder(articleBluePrint, Article{AuthorID: author1.ID}).BuildList(4)
+    articleAuthoredBy2 := articleFactory.NewBuilder(articleBluePrint, Article{AuthorID: author2.ID}).Build()
 
-	type args struct {
-		authorID int
-	}
-	tests := []struct {
-		name string
-		list ArticleList
-		args args
-		want ArticleList
-	}{
-		{
-			name: "returns articles authored by author 1",
-			list: append(articlesAuthoredBy1, articleAuthoredBy2),
-			args: args{authorID: author1.ID},
-			want: articlesAuthoredBy1,
-		},
-		{
-			name: "returns articles authored by author 2",
-			list: append(articlesAuthoredBy1, articleAuthoredBy2),
-			args: args{authorID: author2.ID},
-			want: ArticleList{articleAuthoredBy2},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := tt.list.SelectAuthoredBy(tt.args.authorID); !reflect.DeepEqual(got, tt.want) {
-				t.Errorf("SelectAuthoredBy() = %v, want %v", got, tt.want)
-			}
-		})
-	}
+    type args struct {
+        authorID int
+    }
+    tests := []struct {
+        name string
+        list ArticleList
+        args args
+        want ArticleList
+    }{
+        {
+            name: "returns articles authored by author 1",
+            list: append(articlesAuthoredBy1, articleAuthoredBy2),
+            args: args{authorID: author1.ID},
+            want: articlesAuthoredBy1,
+        },
+        {
+            name: "returns articles authored by author 2",
+            list: append(articlesAuthoredBy1, articleAuthoredBy2),
+            args: args{authorID: author2.ID},
+            want: ArticleList{articleAuthoredBy2},
+        },
+    }
+    for _, tt := range tests {
+        t.Run(tt.name, func(t *testing.T) {
+            if got := tt.list.SelectAuthoredBy(tt.args.authorID); !reflect.DeepEqual(got, tt.want) {
+                t.Errorf("SelectAuthoredBy() = %v, want %v", got, tt.want)
+            }
+        })
+    }
 }
 ```
 

@@ -3,8 +3,6 @@ package fixtory
 import (
 	"reflect"
 	"testing"
-
-	"github.com/google/go-cmp/cmp"
 )
 
 type testStruct struct {
@@ -25,12 +23,13 @@ type childStruct struct {
 func TestNewFactory(t *testing.T) {
 	type args struct {
 		t *testing.T
-		v interface{}
+		v testStruct
 	}
+
 	tests := []struct {
 		name string
 		args args
-		want *Factory
+		want *Factory[testStruct]
 	}{
 		{
 			name: "initializes new factory",
@@ -38,7 +37,7 @@ func TestNewFactory(t *testing.T) {
 				t: t,
 				v: testStruct{},
 			},
-			want: &Factory{
+			want: &Factory[testStruct]{
 				t:           t,
 				productType: reflect.PtrTo(reflect.TypeOf(testStruct{})),
 				last:        testStruct{},
@@ -58,17 +57,16 @@ func TestNewFactory(t *testing.T) {
 
 func TestBuilder_Build(t *testing.T) {
 	fac := NewFactory(t, testStruct{})
-	fac.OnBuild = func(t *testing.T, v interface{}) {
-		testSt := v.(*testStruct)
-		if testSt.Int == 0 {
-			t.Errorf("OnBuild = %d, want not zero", testSt.Int)
+	fac.OnBuild = func(t *testing.T, v *testStruct) {
+		if v.Int == 0 {
+			t.Errorf("OnBuild = %d, want not zero", v.Int)
 		}
 	}
 
-	bluePrint := func(i int, last interface{}) interface{} {
+	bluePrint := func(i int, last testStruct) testStruct {
 		return testStruct{
 			String: "setByBlueprint",
-			Int:    last.(testStruct).Int + 1,
+			Int:    last.Int + 1,
 			Float:  0.5,
 			Array:  []int{1, 2, 3},
 			Map:    map[string]bool{"a": true},
@@ -81,8 +79,8 @@ func TestBuilder_Build(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		builder *Builder
-		want    interface{}
+		builder *Builder[testStruct]
+		want    *testStruct
 	}{
 		{
 			name:    "struct can be initialized with nil blueprint",
@@ -143,10 +141,9 @@ func TestFactory_OnBuild(t *testing.T) {
 	}
 
 	t.Run("onBuild is called after product is all set", func(t *testing.T) {
-		fac.OnBuild = func(t *testing.T, v interface{}) {
-			got := v.(*testStruct)
-			if diff := cmp.Diff(got, &want); diff != "" {
-				t.Errorf("OnBuild() \n%s", diff)
+		fac.OnBuild = func(t *testing.T, got *testStruct) {
+			if !reflect.DeepEqual(got, &want) {
+				t.Errorf("OnBuild() = %v, want %v", got, &want)
 			}
 		}
 		fac.NewBuilder(nil, want).Build()
@@ -161,16 +158,16 @@ func TestBuilder_BuildList(t *testing.T) {
 	}
 	tests := []struct {
 		name    string
-		builder *Builder
+		builder *Builder[testStruct]
 		args    args
-		want    []interface{}
+		want    []*testStruct
 	}{
 		{
 			name: "initializes struct list with reset",
-			builder: fac.NewBuilder(func(i int, last interface{}) interface{} {
+			builder: fac.NewBuilder(func(i int, last testStruct) testStruct {
 				lastChild := &childStruct{}
-				if last.(testStruct).ChildStruct != nil {
-					lastChild = last.(testStruct).ChildStruct
+				if last.ChildStruct != nil {
+					lastChild = last.ChildStruct
 				}
 				return testStruct{
 					String: "test",
@@ -185,34 +182,32 @@ func TestBuilder_BuildList(t *testing.T) {
 				Zero("Map").
 				ResetAfter(),
 			args: args{n: 3},
-			want: []interface{}{
-				&testStruct{String: "test", Int: 1, Float: 0.1, ChildStruct: &childStruct{String: "a"}},
-				&testStruct{String: "test", Int: 2, Float: 0.2, ChildStruct: &childStruct{String: "aa"}},
-				&testStruct{String: "test", Int: 3, Float: 0.3, ChildStruct: &childStruct{String: "aaa"}},
+			want: []*testStruct{
+				{String: "test", Int: 1, Float: 0.1, ChildStruct: &childStruct{String: "a"}},
+				{String: "test", Int: 2, Float: 0.2, ChildStruct: &childStruct{String: "aa"}},
+				{String: "test", Int: 3, Float: 0.3, ChildStruct: &childStruct{String: "aaa"}},
 			},
 		},
 		{
 			name: "initialize struct list with initial index 0 (since index is reset on above test)",
-			builder: fac.NewBuilder(func(i int, last interface{}) interface{} {
+			builder: fac.NewBuilder(func(i int, last testStruct) testStruct {
 				return testStruct{Int: i + 1}
 			}).
 				EachParam(testStruct{Float: 0.1}, testStruct{}, testStruct{Float: 0.3}).
 				Zero("Map").
 				ResetAfter(),
 			args: args{n: 3},
-			want: []interface{}{
-				&testStruct{Int: 1, Float: 0.1},
-				&testStruct{Int: 2},
-				&testStruct{Int: 3, Float: 0.3},
+			want: []*testStruct{
+				{Int: 1, Float: 0.1},
+				{Int: 2},
+				{Int: 3, Float: 0.3},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := tt.builder.BuildList(tt.args.n); !reflect.DeepEqual(got, tt.want) {
-				if diff := cmp.Diff(got, tt.want); diff != "" {
-					t.Errorf("BuildList() \n%s", diff)
-				}
+				t.Errorf("BuildList() = %v, want %v", got, tt.want)
 			}
 		})
 	}
